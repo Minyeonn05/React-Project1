@@ -8,8 +8,8 @@ import App from './App.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 
-import './assets/css/fonts.css';
-import 'C:/react-app/React-Project/client/src/assets/fonts';
+import './assets/fonts/fonts.css';
+import "./assets/fonts/font-icons.css";
 import './assets/css/swiper-bundle.min.css';
 import './assets/css/animate.css';
 import './assets/css/styles.css';
