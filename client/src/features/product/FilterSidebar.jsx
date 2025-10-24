@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Offcanvas, Form } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 // 1. Import actions ที่เราจะสร้างใน slice
-import { toggleSizeFilter, togglePriceFilter } from 'C:/react-app/React-Project/client/src/features/product/productSlice.js';
+import { toggleSizeFilter, togglePriceFilter } from './productSlice';
 
 // 2. รับ props show และ onHide จาก ShopPage.jsx
 const FilterSidebar = ({ show, onHide }) => {
