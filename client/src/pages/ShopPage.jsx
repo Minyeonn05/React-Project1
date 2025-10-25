@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts } from 'C:/react-app/React-Project/client/src/features/product/productSlice.js';
-import ProductList from 'C:/react-app/React-Project/client/src/features/product/ProductList.jsx';
+import { fetchProducts } from '../features/product/productSlice';
+import ProductList from '../features/product/ProductList';
 import ShopControls from '../components/common/ShopControls.jsx';
-import FilterSidebar from 'C:/react-app/React-Project/client/src/features/product/FilterSidebar.jsx';
+import FilterSidebar from '../features/product/FilterSidebar';
 import { useState } from 'react';
 
 const ShopPage = () => {

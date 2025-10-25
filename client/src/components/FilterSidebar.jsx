@@ -1,7 +1,7 @@
 // src/components/ShopControls.jsx
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { setSearchTerm } from 'C:/react-app/React-Project/client/src/features/product/productSlice.js';
+import { setSearchTerm } from '../features/product/productSlice';
 
 const ShopControls = () => {
   const dispatch = useDispatch();
