@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 // 1. Import action จาก slice ของ Product
-import { setSearchTerm } from 'C:/react-app/React-Project/client/src/features/product/productSlice.js'; 
+import { setSearchTerm } from '../../features/product/productSlice'; 
 
 // 2. รับฟังก์ชัน onFilterClick มาจาก ShopPage
 const ShopControls = ({ onFilterClick }) => {

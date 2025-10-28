@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import 'C:/react-app/React-Project/client/src/assets/css/styles.css'; // (ถ้ามีสไตล์เฉพาะสำหรับ Navbar)
+import "../../assets/css/styles.css"; // (ถ้ามีสไตล์เฉพาะสำหรับ Navbar)
 import { FaUser } from "react-icons/fa"; // ไอคอน user จาก Font Awesome
 import { BsBag } from "react-icons/bs"; // ไอคอน bag จาก Bootstrap Icons
 
