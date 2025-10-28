@@ -1,75 +1,83 @@
+// client/src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'; 
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { fetchCart } from './features/cart/cartSlice';
-import { logout } from './features/auth/authSlice';
+// ⭐️ เอา import logout ออก เพราะจะจัดการใน AccountSidebar ⭐️
+// import { logout } from './features/auth/authSlice';
 
 // Import Components
 import Navbar from './components/common/Navbar';
-// ⭐️ 1. ลบ Import Footer ออก ⭐️
-// import Footer from './components/common/Footer'; 
 import AuthModal from './features/auth/AuthModal.jsx';
 import CartModal from './features/cart/CartModal.jsx';
 
 // Import Pages
 import ShopPage from './pages/ShopPage';
-import ProductDetailPage from './pages/ProductDetailPage'; 
+import ProductDetailPage from './pages/ProductDetailPage';
+// ⭐️ 1. Import หน้า My Account ⭐️
+import MyAccountPage from './pages/MyAccountPage'; // (สร้างไฟล์นี้ต่อไป)
 
 // Component ย่อยสำหรับจัดการ Layout และ Logic
-function AppContent() { 
-  const location = useLocation(); 
+function AppContent() {
+  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
   const [showLogin, setShowLogin] = useState(false);
   const [showCart, setShowCart] = useState(false);
 
+  // ดึงข้อมูลตะกร้าเมื่อ User เปลี่ยน (login/logout) หรือเมื่อตะกร้าว่างเปล่า
   useEffect(() => {
     if (user) {
       dispatch(fetchCart());
     }
+    // ถ้าไม่มี user ไม่ต้องทำอะไร fetchCart จะคืนค่า array ว่างเปล่าเอง
   }, [user, dispatch]);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    setShowLogin(false);
-    setShowCart(false);
-  };
+  // ⭐️ เอา handleLogout ออก เพราะย้ายไป AccountSidebar ⭐️
+  // const handleLogout = () => { ... };
 
   return (
-    <> 
-      <Navbar 
-        onLoginClick={() => setShowLogin(true)} 
+    <>
+      <Navbar
+        onLoginClick={() => setShowLogin(true)}
         onCartClick={() => setShowCart(true)}
       />
 
       <Routes>
         <Route path="/" element={<ShopPage />} />
-        <Route path="/shop-default" element={<ShopPage />} /> 
-        <Route path="/product-detail" element={<ProductDetailPage />} /> 
+        <Route path="/shop-default" element={<ShopPage />} />
+        <Route path="/product-detail" element={<ProductDetailPage />} />
+
+        {/* ⭐️ 2. เพิ่ม Route สำหรับ My Account และหน้าย่อย ⭐️ */}
+        {/* ใช้ '*' เพื่อรองรับ nested routes ภายใน MyAccountPage */}
+        <Route path="/my-account/*" element={<MyAccountPage />} />
+
+        {/* (เพิ่ม Route อื่นๆ ที่นี่ เช่น /admin ถ้ามี) */}
+        {/* <Route path="/admin" element={<AdminPage />} /> */}
+
       </Routes>
 
-      {/* ⭐️ 2. ลบบรรทัดที่เรียกใช้ Footer และเงื่อนไขออก ⭐️ */}
-      {/* {location.pathname !== '/product-detail' && <Footer />} */}
+      {/* (Footer ถูกลบไปแล้ว) */}
 
       {/* Modals */}
-      <AuthModal 
-        show={showLogin} 
-        onHide={() => setShowLogin(false)} 
+      <AuthModal
+        show={showLogin}
+        onHide={() => setShowLogin(false)}
       />
-      <CartModal 
-        show={showCart} 
-        onHide={() => setShowCart(false)} 
+      <CartModal
+        show={showCart}
+        onHide={() => setShowCart(false)}
       />
-    </> 
+    </>
   );
 }
 
-// Component App หลัก
+// Component App หลัก (เหมือนเดิม)
 function App() {
   return (
     <BrowserRouter>
-      <AppContent /> 
+      <AppContent />
     </BrowserRouter>
   );
 }

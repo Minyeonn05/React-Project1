@@ -20719,3 +20719,222 @@ blockquote .text {
   /* 👇 Ensure no underline on hover */
   text-decoration: none;
 }
+
+/* --- สไตล์ใหม่สำหรับ Cart Item --- */
+
+/* ใช้ Flexbox จัด layout หลัก */
+.cart-item-new {
+  display: flex;
+  align-items: flex-start; /* จัดชิดบน */
+  gap: 15px; /* ระยะห่างระหว่างรูปกับข้อมูล */
+  padding: 15px 0;
+  border-bottom: 1px solid #eee; 
+}
+.cart-item-new:last-child {
+  border-bottom: none;
+}
+
+/* ส่วนรูปภาพ */
+.cart-item-image {
+  flex-shrink: 0; /* ไม่ให้รูปหด */
+  width: 70px; /* ขนาดรูป */
+  height: 90px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+.cart-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* หรือ contain ถ้าต้องการเห็นรูปเต็ม */
+}
+
+/* ส่วนข้อมูลและปุ่ม */
+.cart-item-details {
+  flex-grow: 1; /* ให้ส่วนนี้ยืดเต็มพื้นที่ที่เหลือ */
+  display: flex;
+  flex-direction: column; /* จัดเรียงแนวตั้ง */
+  justify-content: space-between; /* จัดให้อยู่บนสุดกับล่างสุด */
+  min-height: 90px; /* ความสูงขั้นต่ำเท่ารูป */
+}
+
+/* กลุ่มข้อมูล (ชื่อ, ราคา) */
+.cart-item-info {
+  margin-bottom: 10px; /* ระยะห่างจากกลุ่มปุ่ม */
+}
+.cart-item-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  display: block; /* ทำให้ margin ทำงาน */
+   /* ทำให้ตัดข้อความถ้าชื่อยาว */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px; /* กำหนดความกว้างสูงสุด */
+}
+.cart-item-price {
+  font-size: 14px;
+  color: #555;
+}
+
+/* กลุ่มปุ่ม (Quantity, Remove) */
+.cart-item-actions {
+  display: flex;
+  justify-content: space-between; /* จัด Quantity ชิดซ้าย, Remove ชิดขวา */
+  align-items: center; 
+}
+
+/* ปุ่ม Quantity */
+.cart-quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden; /* ซ่อนขอบของปุ่มข้างใน */
+}
+.cart-quantity-selector .btn {
+  border: none; /* เอาขอบปุ่ม +/- ออก */
+  border-radius: 0; /* ทำให้ปุ่มติดกัน */
+  padding: 2px 8px; /* ปรับขนาดปุ่ม */
+  font-size: 16px; 
+  line-height: 1;
+  color: #555;
+}
+.cart-quantity-selector .btn:hover {
+    background-color: #f0f0f0;
+}
+.cart-quantity-selector .quantity-display {
+  padding: 2px 10px; /* ระยะห่างเลขจำนวน */
+  font-size: 14px;
+  min-width: 30px; /* ความกว้างขั้นต่ำของเลข */
+  text-align: center;
+  font-weight: 500;
+  border-left: 1px solid #ccc; /* เส้นคั่นซ้าย */
+  border-right: 1px solid #ccc; /* เส้นคั่นขวา */
+}
+
+/* ปุ่ม Remove (ถังขยะ) */
+.cart-remove-button {
+  padding: 5px 8px; 
+  font-size: 16px; /* ขนาดไอคอน */
+  color: #888; 
+  border: none;
+}
+.cart-remove-button:hover {
+  color: var(--primary); /* สีแดงตอน hover */
+  background-color: #ffebee; 
+}
+
+/* ปรับ Scrollbar ให้สวยขึ้น (Optional) */
+.cart-modal-body .tf-mini-cart-sroll::-webkit-scrollbar {
+  width: 6px;
+}
+.cart-modal-body .tf-mini-cart-sroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+.cart-modal-body .tf-mini-cart-sroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+.cart-modal-body .tf-mini-cart-sroll::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* --- Modern Cart Summary Styles --- */
+
+/* Overall container for the bottom section */
+.tf-mini-cart-bottom {
+  background-color: #f8f9fa; /* Lighter background */
+  border-top: 1px solid #dee2e6; /* Lighter border */
+  box-shadow: none; /* Remove previous shadow if any */
+  padding: 0; /* Remove padding if inner wrap handles it */
+}
+
+.tf-mini-cart-bottom-wrap {
+  padding: 20px 25px; /* Adjust padding */
+}
+
+/* Subtotal Section */
+.tf-cart-totals-discounts {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline; /* Align text baselines */
+  margin-bottom: 8px; /* Space below subtotal */
+}
+
+.tf-cart-total {
+  font-size: 1rem; /* Slightly larger text */
+  color: #6c757d; /* Grey text */
+  font-weight: 500;
+}
+
+.tf-totals-total-value {
+  font-size: 1.25rem; /* Larger price */
+  font-weight: 600; /* Bolder price */
+  color: var(--main); /* Black price */
+}
+
+/* Tax and Shipping Text */
+.tf-cart-tax {
+  font-size: 0.8rem; /* Smaller text */
+  color: #adb5bd; /* Lighter grey */
+  text-align: right; /* Align to the right under the price */
+  margin-top: -5px; /* Pull it up slightly */
+  margin-bottom: 20px; /* Space before button */
+}
+.tf-cart-tax a { /* Style the link within the text */
+    color: #8a959f;
+    text-decoration: none; /* Remove underline */
+}
+.tf-cart-tax a:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
+
+/* Separator Line (Optional: Remove or make lighter) */
+.tf-mini-cart-line {
+  border-color: #e9ecef; /* Lighter line */
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+/* OR to remove it completely: */
+/*
+.tf-mini-cart-line {
+  display: none;
+}
+*/
+
+/* Checkout Button Area */
+.tf-mini-cart-view-checkout {
+  margin-top: 15px; /* Ensure space above button */
+}
+
+/* Modern Checkout Button Style */
+.tf-mini-cart-view-checkout .tf-btn.btn-fill {
+  background-color: var(--main); /* Keep it black or choose a modern color */
+  color: var(--white);
+  border: none;
+  border-radius: 8px; /* Softer corners */
+  font-weight: 500; /* Slightly less bold */
+  font-size: 1rem; /* Standard font size */
+  height: 50px; /* Taller button */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: all 0.2s ease-out; /* Smooth transition */
+  text-transform: none; /* Remove uppercase if needed */
+  letter-spacing: 0.5px;
+}
+
+.tf-mini-cart-view-checkout .tf-btn.btn-fill:hover {
+  background-color: #343a40; /* Darker shade on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.tf-mini-cart-view-checkout .tf-btn.btn-fill:disabled {
+  background-color: #ced4da; /* Lighter grey when disabled */
+  box-shadow: none;
+  transform: none;
+}

@@ -1,14 +1,15 @@
+// client/src/features/auth/AuthModal.jsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Modal, Button, Form, FloatingLabel, Alert } from 'react-bootstrap';
-import { loginUser, registerUser } from './authSlice';
+// ⭐️ 1. Import registerUser และ clearAuthError ⭐️
+import { loginUser, registerUser, clearAuthError } from './authSlice';
 
-// 1. รับ props 'show' และ 'onHide' จาก App.jsx
 const AuthModal = ({ show, onHide }) => {
   const dispatch = useDispatch();
   const { status, error, user } = useSelector((state) => state.auth);
 
-  // 2. State ภายในสำหรับสลับหน้าจอ
+  // ⭐️ 2. State ภายในสำหรับสลับหน้าจอ ⭐️
   const [view, setView] = useState('login'); // 'login' หรือ 'register'
 
   // State สำหรับเก็บข้อมูลฟอร์ม
@@ -19,6 +20,8 @@ const AuthModal = ({ show, onHide }) => {
     email: '',
     password: '',
   });
+  // State สำหรับข้อความ (ถ้า register สำเร็จ)
+  const [message, setMessage] = useState('');
 
   // 3. เมื่อ Login สำเร็จ ให้ปิด Modal
   useEffect(() => {
@@ -27,8 +30,16 @@ const AuthModal = ({ show, onHide }) => {
     }
   }, [user, show, onHide]);
 
+  // 4. เคลียร์ Error/Message เมื่อเปิด/ปิด Modal หรือสลับหน้า
+  useEffect(() => {
+    if (show) {
+      dispatch(clearAuthError()); // เคลียร์ error เก่าจาก Redux
+      setMessage(''); // เคลียร์ message สำเร็จ
+    }
+  }, [show, view, dispatch]);
 
-  // 4. จัดการฟอร์ม
+
+  // 5. จัดการฟอร์ม
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
@@ -37,44 +48,49 @@ const AuthModal = ({ show, onHide }) => {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
   };
 
-  // 5. Submit ฟอร์ม (Dispatch action)
+  // 6. Submit ฟอร์ม Login (Dispatch action)
   const handleLoginSubmit = (e) => {
     e.preventDefault();
+    setMessage('');
     dispatch(loginUser(loginData));
+    // (useEffect ด้านบนจะจัดการปิด Modal เมื่อ user state เปลี่ยน)
   };
 
+  // 7. Submit ฟอร์ม Register (Dispatch action)
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
+    setMessage('');
     dispatch(registerUser(registerData))
       .unwrap()
-      .then(() => {
-        // ถ้า Register สำเร็จ ให้สลับไปหน้า Login
-        alert('สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
-        setView('login');
+      .then((response) => {
+        // ถ้า Register สำเร็จ
+        setMessage(response.status || 'สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
+        setView('login'); // สลับกลับไปหน้า Login
+        setRegisterData({ fname: '', lname: '', email: '', password: '' }); // เคลียร์ฟอร์ม
       })
       .catch((err) => {
-        // (error จะถูกแสดงโดย useSelector)
+        // ถ้าไม่สำเร็จ error จะถูกแสดงโดย useSelector(state => state.auth.error)
+        // (err คือค่าที่ rejectWithValue ส่งมา)
         console.error('Failed to register:', err);
       });
   };
 
-  // 6. สลับหน้าจอและรีเซ็ตฟอร์ม
+  // 8. สลับหน้าจอและรีเซ็ตฟอร์ม
   const switchView = (newView) => {
     setView(newView);
     setLoginData({ email: '', password: '' });
     setRegisterData({ fname: '', lname: '', email: '', password: '' });
   };
   
-  // 7. สร้างฟังก์ชันปิด Modal (เพื่อรีเซ็ต State ด้วย)
   const handleClose = () => {
     onHide();
     setTimeout(() => {
       setView('login'); // กลับไปหน้า login เสมอเมื่อปิด
-    }, 300); // หน่วงเวลาให้ CSS transition จบก่อน
+      setMessage('');
+    }, 300);
   };
 
   return (
-    // 8. ใช้ Modal ของ react-bootstrap
     <Modal 
       show={show} 
       onHide={handleClose} 
@@ -82,16 +98,19 @@ const AuthModal = ({ show, onHide }) => {
       className="form-sign-in modal-part-content"
     >
       <Modal.Header closeButton>
-        {/* 9. เปลี่ยน Title ตาม State */}
         <Modal.Title className="demo-title">
           {view === 'login' ? 'Log in' : 'Register'}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="tf-login-form">
 
-        {/* 10. แสดง Error จาก Redux */}
+        {/* ⭐️ แสดง Error จาก Redux (ถ้ามี) ⭐️ */}
         {status === 'failed' && error && (
-          <Alert variant="danger">{error.message || 'An error occurred'}</Alert>
+          <Alert variant="danger">{error}</Alert>
+        )}
+        {/* ⭐️ แสดง Message สำเร็จ (ถ้ามี) ⭐️ */}
+        {message && status !== 'failed' && (
+           <Alert variant="success">{message}</Alert>
         )}
 
         {view === 'login' ? (
@@ -99,7 +118,6 @@ const AuthModal = ({ show, onHide }) => {
           //    ฟอร์ม Login
           // ==================
           <Form onSubmit={handleLoginSubmit}>
-            {/* 11. ใช้ FloatingLabel แทน tf-field */}
             <FloatingLabel controlId="loginEmail" label="Email *" className="mb-3">
               <Form.Control
                 type="email"
@@ -108,7 +126,7 @@ const AuthModal = ({ show, onHide }) => {
                 value={loginData.email}
                 onChange={handleLoginChange}
                 required
-                className="tf-input" // ใช้คลาสเดิมเพื่อให้ CSS จับได้
+                className="tf-input"
               />
             </FloatingLabel>
 
@@ -129,7 +147,7 @@ const AuthModal = ({ show, onHide }) => {
                 <Button 
                   type="submit" 
                   className="tf-btn btn-fill animate-hover-btn radius-3 w-100 justify-content-center"
-                  disabled={status === 'loading'} // ปิดปุ่มตอนโหลด
+                  disabled={status === 'loading'}
                 >
                   {status === 'loading' ? 'Loading...' : 'Log in'}
                 </Button>
@@ -138,7 +156,7 @@ const AuthModal = ({ show, onHide }) => {
                 <Button 
                   variant="link" 
                   className="fw-6 w-100 link"
-                  onClick={() => switchView('register')} // 12. ปุ่มสลับหน้าจอ
+                  onClick={() => switchView('register')} // 👈 ปุ่มสลับไป Register
                 >
                   New customer? Create your account
                   <i className="icon icon-arrow1-top-left"></i>
@@ -181,7 +199,7 @@ const AuthModal = ({ show, onHide }) => {
                 <Button 
                   variant="link" 
                   className="fw-6 w-100 link"
-                  onClick={() => switchView('login')} // 12. ปุ่มสลับหน้าจอ
+                  onClick={() => switchView('login')} // 👈 ปุ่มสลับกลับไป Login
                 >
                   Already have an account? Log in here
                   <i className="icon icon-arrow1-top-left"></i>

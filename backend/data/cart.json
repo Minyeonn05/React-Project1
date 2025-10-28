@@ -5,7 +5,18 @@
   },
   {
     "email": "krittayot.10516@gmail.com",
-    "carts": []
+    "carts": [
+      {
+        "item": "Oversized timeless_Truffle",
+        "size": "XXL",
+        "amount": 1
+      },
+      {
+        "item": "Oversized timeless_Shadow Grey",
+        "size": "XXL",
+        "amount": 2
+      }
+    ]
   },
   {
     "email": "GG@gmail.com",
