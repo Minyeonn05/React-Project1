@@ -3,16 +3,13 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = ({ onLoginClick, onCartClick }) => {
-  // --- ดึง state ทั้ง cart และ user ---
+  // --- ดึง state ทั้ง cart และ user --- //
   const cartItems = useSelector((state) => state.cart.items);
-  const user = useSelector((state) => state.auth.user); // Get logged-in user email
+  const user = useSelector((state) => state.auth.user); 
   const navigate = useNavigate();
-
-  // --- คำนวณ totalItems เฉพาะเมื่อ user login อยู่ ---
-  // ถ้า user เป็น null (logout) ให้ totalItems เป็น 0 ทันที
+  
   const totalItems = user ? cartItems.reduce((sum, item) => sum + item.amount, 0) : 0;
 
-  // Handler for the account icon/button (เหมือนเดิม)
   const handleAccountClick = () => {
     if (user === 'admin@mail.org') {
         navigate('/admin');

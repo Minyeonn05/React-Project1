@@ -10,6 +10,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './assets/fonts/fonts.css';
 import "./assets/fonts/font-icons.css";
+import './assets/css/fonts.css';
+// Use local fonts CSS instead of an absolute path which breaks Vite resolution
+import './assets/fonts/font-icons.css';
 import './assets/css/swiper-bundle.min.css';
 import './assets/css/animate.css';
 import './assets/css/styles.css';

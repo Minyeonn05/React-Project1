@@ -1,0 +1,27 @@
+[
+  {
+    "fname": "FF",
+    "lname": "LL",
+    "profile": "/users/img/blank-profile-picture.webp",
+    "address": [],
+    "orders": [
+      [
+        {
+          "item": "Oversized timeless_Shadow Grey",
+          "size": "XXL",
+          "amount": 4
+        },
+        {
+          "item": "Oversized timeless_Shadow Grey",
+          "size": "L",
+          "amount": 3
+        },
+        {
+          "item": "Ultrasoft Unisex Round Neck_Rosewood",
+          "size": "6XL",
+          "amount": 1
+        }
+      ]
+    ]
+  }
+]
