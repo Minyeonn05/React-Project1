@@ -4,7 +4,7 @@ export default function AboutPage() {
   return (
     <div className="about-page">
       {/* Hero / Banner (from original about-us.html) */}
-      <section className="tf-slideshow about-us-page position-relative py-5">
+      <section className="tf-slideshow about-us-page position-relative py-5" style={{marginTop: '-80px'}}>
         <div className="banner-wrapper">
           <img
             src="/images/collections/AutAunGle.jpg"
