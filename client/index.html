@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Ecomus - Home</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/vite.svg" />
+
+    <!-- Fonts and Styles (CDNs) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- Project styles from provided file -->
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <body class="preload-wrapper popup-loader">
+    <div id="wrapper">
+      <!-- Header (simplified from provided file) -->
+      <header id="header" class="header-default header-absolute">
+        <div class="px_15 lg-px_40">
+          <div class="row wrapper-header align-items-center">
+            <div class="col-xl-3 col-md-4 col-6">
+              <a href="/" class="logo-header">
+                <img src="/images/logo/logo.svg" alt="logo" class="logo" />
+              </a>
+            </div>
+            <div class="col-xl-6 d-none d-xl-block">
+              <nav class="text-center">
+                <ul class="d-flex align-items-center justify-content-center gap-3 list-unstyled m-0">
+                  <li><a href="/" class="text-decoration-none">Home</a></li>
+                  <li><a href="/shop-default.html" class="text-decoration-none">Shop</a></li>
+                  <li><a href="/about-us.html" class="text-decoration-none">About us</a></li>
+                </ul>
+              </nav>
+            </div>
+            <div class="col-xl-3 col-md-4 col-3">
+              <ul class="d-flex justify-content-end align-items-center gap-3 list-unstyled m-0">
+                <li>
+                  <a href="#login" data-bs-toggle="modal" class="text-decoration-none"><i class="bi bi-person"></i></a>
+                </li>
+                <li class="nav-cart">
+                  <a href="#shoppingCart" data-bs-toggle="modal" class="text-decoration-none">
+                    <span class="count-box badge bg-dark">0</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Slider (uses public/images) -->
+      <div class="position-relative my-4">
+        <div class="swiper" id="home-slideshow">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img src="/images/slider/fashion-slideshow-01.jpg" class="w-100" alt="fashion-slideshow-01" />
+            </div>
+            <div class="swiper-slide">
+              <img src="/images/slider/fashion-slideshow-02.jpg" class="w-100" alt="fashion-slideshow-02" />
+            </div>
+            <div class="swiper-slide">
+              <img src="/images/slider/fashion-slideshow-03.jpg" class="w-100" alt="fashion-slideshow-03" />
+            </div>
+          </div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+      </div>
+
+      <!-- Shopping Cart Modal (kept from provided logic) -->
+      <div class="modal fullRight fade modal-shopping-cart" id="shoppingCart">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="header d-flex justify-content-between align-items-center p-3">
+              <div class="title fw-5">Shopping cart</div>
+              <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            <div class="wrap p-3">
+              <div class="tf-mini-cart-wrap">
+                <div class="tf-mini-cart-main">
+                  <div class="tf-mini-cart-sroll">
+                    <div class="tf-mini-cart-items"></div>
+                  </div>
+                </div>
+                <div class="tf-mini-cart-bottom">
+                  <div class="tf-mini-cart-bottom-wrap">
+                    <div class="d-flex justify-content-between">
+                      <div class="tf-cart-total">Subtotal</div>
+                      <div class="tf-totals-total-value fw-6">$0.00</div>
+                    </div>
+                    <div class="tf-mini-cart-line my-3 border-top"></div>
+                    <div class="tf-mini-cart-view-checkout">
+                      <a onclick="checkOut()" class="btn btn-dark w-100"><span>Check out</span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Login Modal (from provided) -->
+      <div class="modal modalCentered fade form-sign-in modal-part-content" id="login">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="header d-flex justify-content-between align-items-center p-3">
+              <div class="demo-title">Log in</div>
+              <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            <div class="tf-login-form p-3">
+              <form id="loginForm" accept-charset="utf-8">
+                <div class="mb-3">
+                  <label for="loginEmail" class="form-label">Email *</label>
+                  <input class="form-control" type="email" name="email" id="loginEmail" required />
+                </div>
+                <div class="mb-3">
+                  <label for="loginPassword" class="form-label">Password *</label>
+                  <input class="form-control" type="password" name="password" id="loginPassword" required />
+                </div>
+                <button type="submit" class="btn btn-dark w-100">Log in</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Modal (from provided) -->
+      <div class="modal modalCentered fade form-sign-in modal-part-content" id="register">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="header d-flex justify-content-between align-items-center p-3">
+              <div class="demo-title">Register</div>
+              <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            <div class="tf-login-form p-3">
+              <form id="registerForm">
+                <div class="mb-3">
+                  <label for="registerFname" class="form-label">First name</label>
+                  <input class="form-control" type="text" name="fname" id="registerFname" required />
+                </div>
+                <div class="mb-3">
+                  <label for="registerLname" class="form-label">Last name</label>
+                  <input class="form-control" type="text" name="lname" id="registerLname" required />
+                </div>
+                <div class="mb-3">
+                  <label for="registerEmail" class="form-label">Email *</label>
+                  <input class="form-control" type="email" name="email" id="registerEmail" required />
+                </div>
+                <div class="mb-3">
+                  <label for="registerPassword" class="form-label">Password *</label>
+                  <input class="form-control" type="password" name="password" id="registerPassword" required />
+                </div>
+                <button type="submit" class="btn btn-dark w-100">Register</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor JS (CDNs) -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+    <!-- Initialize Swiper -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const slideshow = document.getElementById('home-slideshow');
+        if (slideshow) {
+          new Swiper('#home-slideshow', {
+            loop: true,
+            autoplay: { delay: 3000 },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+          });
+        }
+      });
+    </script>
+
+    <!-- Core logic from provided index.html (login/cart/checkout) -->
+    <script>
+      const ajax = async (config) => {
+        const request = await fetch(config.url, {
+          method: config.method,
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(config.data),
+        });
+        const response = await request.json();
+        return response;
+      };
+
+      async function checkOut() {
+        const loggedInUserEmail = JSON.parse(localStorage.getItem('loggedInUser'));
+        if (!loggedInUserEmail) {
+          alert('Please log in to proceed with checkout.');
+          return;
+        }
+        if (confirm('Are you sure you want to checkout?')) {
+          try {
+            const cartResponse = await axios.get('http://localhost:5000/api/carts');
+            const userCart = cartResponse.data.find((cart) => cart.email === loggedInUserEmail);
+            if (!userCart || userCart.carts.length === 0) {
+              alert('Your cart is empty.');
+              return;
+            }
+            const itemsToOrder = [...userCart.carts];
+            await axios.post('http://localhost:5000/api/users/addOrder', {
+              email: loggedInUserEmail,
+              order: itemsToOrder,
+            });
+            const removalPromises = [];
+            for (const item of itemsToOrder) {
+              for (let i = 0; i < item.amount; i++) {
+                removalPromises.push(
+                  axios.post('http://localhost:5000/api/carts/remove', {
+                    email: loggedInUserEmail,
+                    item: item.item,
+                    size: item.size,
+                  })
+                );
+              }
+            }
+            await Promise.all(removalPromises);
+            alert('Checkout successful!');
+            location.reload();
+          } catch (error) {
+            console.error('Checkout error:', error);
+            alert('An error occurred during checkout. Please check the console for details.');
+          }
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const elements = {
+          countBox: document.querySelector('.nav-cart .count-box'),
+          shoppingCartModal: document.getElementById('shoppingCart'),
+          cartItemsContainer: document.querySelector('.tf-mini-cart-items'),
+          cartSubtotal: document.querySelector('.tf-totals-total-value'),
+          loginForm: document.getElementById('loginForm'),
+          registerForm: document.getElementById('registerForm'),
+          loginModal: document.getElementById('login'),
+          registerModal: document.getElementById('register'),
+        };
+
+        let allProductsData = [];
+
+        async function fetchAllProducts() {
+          if (allProductsData.length > 0) return;
+          try {
+            const response = await axios.get('http://localhost:5000/api/products');
+            allProductsData = response.data;
+          } catch (error) {
+            console.error('Error fetching all products:', error);
+          }
+        }
+
+        async function updateCartCount() {
+          if (!elements.countBox) return;
+          const loggedInUserEmail = JSON.parse(localStorage.getItem('loggedInUser'));
+          if (!loggedInUserEmail) {
+            elements.countBox.textContent = '0';
+            return;
+          }
+          try {
+            const response = await axios.get('http://localhost:5000/api/carts');
+            const userCart = response.data.find((cart) => cart.email === loggedInUserEmail);
+            let totalItems = 0;
+            if (userCart && userCart.carts) {
+              totalItems = userCart.carts.reduce((sum, item) => sum + item.amount, 0);
+            }
+            elements.countBox.textContent = totalItems;
+          } catch (error) {
+            console.error('Error updating cart count:', error);
+            elements.countBox.textContent = '0';
+          }
+        }
+
+        async function renderShoppingCart() {
+          if (!elements.cartItemsContainer) return;
+          const loggedInUserEmail = JSON.parse(localStorage.getItem('loggedInUser'));
+          if (!loggedInUserEmail) {
+            elements.cartItemsContainer.innerHTML = '<p class="text-center p-3">Please sign in to see your cart.</p>';
+            if (elements.cartSubtotal) elements.cartSubtotal.textContent = '$0.00';
+            return;
+          }
+          elements.cartItemsContainer.innerHTML = '<p class="text-center p-3">Loading...</p>';
+          try {
+            const cartResponse = await axios.get('http://localhost:5000/api/carts');
+            const userCart = cartResponse.data.find((cart) => cart.email === loggedInUserEmail);
+            if (!userCart || !userCart.carts || userCart.carts.length === 0) {
+              elements.cartItemsContainer.innerHTML = '<p class="text-center p-3">Your cart is empty.</p>';
+              if (elements.cartSubtotal) elements.cartSubtotal.textContent = '$0.00';
+              return;
+            }
+            let cartHtml = '';
+            let subtotal = 0;
+            for (const cartItem of userCart.carts) {
+              const productDetail = allProductsData.find((p) => p.name === cartItem.item);
+              if (productDetail) {
+                const imagePath = productDetail.img.length > 0 ? `/backend${productDetail.img[0]}` : '';
+                const itemPrice = parseFloat(productDetail.price);
+                const itemQuantity = parseInt(cartItem.amount, 10);
+                subtotal += itemPrice * itemQuantity;
+                cartHtml += `
+                  <div class="tf-mini-cart-item" data-name="${cartItem.item}" data-size="${cartItem.size}">
+                    <div class="tf-mini-cart-image">
+                      <a href="product-detail.html?id=${productDetail.id}">
+                        <img src="${imagePath}" alt="${productDetail.name}" />
+                      </a>
+                    </div>
+                    <div class="tf-mini-cart-info">
+                      <a class="title link" href="product-detail.html?id=${productDetail.id}">${cartItem.item}</a>
+                      <div class="meta-variant">Size: ${cartItem.size}</div>
+                      <div class="price fw-6">$${itemPrice.toFixed(2)}</div>
+                      <div class="tf-mini-cart-btns">
+                        <div class="wg-quantity small">
+                          <input type="text" name="number" value="${itemQuantity}" readonly />
+                        </div>
+                        <div class="tf-mini-cart-remove btn btn-link p-0">Remove</div>
+                      </div>
+                    </div>
+                  </div>`;
+              }
+            }
+            elements.cartItemsContainer.innerHTML = cartHtml;
+            if (elements.cartSubtotal) {
+              elements.cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            }
+          } catch (error) {
+            console.error('Error rendering shopping cart:', error);
+            elements.cartItemsContainer.innerHTML = '<p class="text-center p-3 text-danger">Error loading cart data.</p>';
+          }
+        }
+
+        async function handleRemoveFromCart(event) {
+          const cartItemElement = event.target.closest('.tf-mini-cart-item');
+          if (!cartItemElement) return;
+          const itemName = cartItemElement.dataset.name;
+          const itemSize = cartItemElement.dataset.size;
+          if (confirm(`Do you want to remove 1 x ${itemName} (Size: ${itemSize}) from the cart?`)) {
+            const loggedInUserEmail = JSON.parse(localStorage.getItem('loggedInUser'));
+            if (!loggedInUserEmail) return;
+            const payload = { email: loggedInUserEmail, item: itemName, size: itemSize };
+            try {
+              await axios.post('http://localhost:5000/api/carts/remove', payload);
+              await renderShoppingCart();
+              await updateCartCount();
+            } catch (error) {
+              console.error('Error removing item from cart:', error);
+              alert('Error removing item.');
+            }
+          }
+        }
+
+        async function handleLogin(event) {
+          event.preventDefault();
+          const payload = {
+            email: elements.loginForm.email.value,
+            password: elements.loginForm.password.value,
+          };
+          try {
+            const response = await axios.post('http://localhost:5000/api/users/login', payload);
+            if (response.data && response.data.email) {
+              localStorage.setItem('loggedInUser', JSON.stringify(response.data.email));
+              alert('Login successful!');
+              if (response.data.email === 'admin@mail.org') {
+                window.location.href = 'admin.html';
+              } else {
+                window.location.href = 'my-account.html';
+              }
+            } else {
+              alert(response.data.status || 'Invalid email or password.');
+            }
+          } catch (error) {
+            alert('Login failed: ' + (error.response?.data?.status || 'Server connection error.'));
+          }
+        }
+
+        async function handleRegister(event) {
+          event.preventDefault();
+          const payload = {
+            fname: elements.registerForm.fname.value,
+            lname: elements.registerForm.lname.value,
+            email: elements.registerForm.email.value,
+            password: elements.registerForm.password.value,
+          };
+          try {
+            const response = await axios.post('http://localhost:5000/api/users/register', payload);
+            alert(response.data.status || 'Registration successful!');
+            bootstrap.Modal.getInstance(elements.registerModal).hide();
+            new bootstrap.Modal(elements.loginModal).show();
+          } catch (error) {
+            alert('Registration failed: ' + (error.response?.data?.status || 'Could not register.'));
+          }
+        }
+
+        if (elements.loginForm) elements.loginForm.addEventListener('submit', handleLogin);
+        if (elements.registerForm) elements.registerForm.addEventListener('submit', handleRegister);
+        if (elements.shoppingCartModal) elements.shoppingCartModal.addEventListener('show.bs.modal', renderShoppingCart);
+        if (elements.cartItemsContainer) {
+          elements.cartItemsContainer.addEventListener('click', function (event) {
+            if (event.target.classList.contains('tf-mini-cart-remove')) {
+              handleRemoveFromCart(event);
+            }
+          });
+        }
+
+        fetchAllProducts();
+        updateCartCount();
+      });
+    </script>
+
+    <!-- Provided index.js (optional helper) -->
+    <script src="/index.js"></script>
+  </body>
+</html>

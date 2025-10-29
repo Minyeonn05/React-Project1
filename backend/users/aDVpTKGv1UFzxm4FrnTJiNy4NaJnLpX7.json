@@ -1,0 +1,48 @@
+[
+  {
+    "fname": "โกโจKitkat",
+    "lname": "ซาโตรุ",
+    "profile": "/users/img/blank-profile-picture.webp",
+    "address": [
+      "เชียงใหม่แถวๆหลังมอ"
+    ],
+    "orders": [
+      [
+        {
+          "item": "Oversized timeless_Shadow Grey",
+          "size": "XXL",
+          "amount": 3
+        },
+        {
+          "item": "Oversized timeless_Burgundy",
+          "size": "XXL",
+          "amount": 2
+        },
+        {
+          "item": "Oversized timeless_Burgundy",
+          "size": "M",
+          "amount": 2
+        }
+      ],
+      [
+        {
+          "item": "Oversized timeless_Truffle",
+          "size": "XXL",
+          "amount": 3
+        }
+      ],
+      [
+        {
+          "item": "Oversized timeless_Truffle",
+          "size": "XXL",
+          "amount": 1
+        },
+        {
+          "item": "Polo Waffle_Scarlet Pink",
+          "size": "3XL",
+          "amount": 1
+        }
+      ]
+    ]
+  }
+]

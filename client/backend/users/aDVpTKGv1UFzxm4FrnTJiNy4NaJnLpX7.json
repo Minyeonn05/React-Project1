@@ -1,0 +1,29 @@
+[
+  {
+    "fname": "โกโจ",
+    "lname": "ซาโตรุ",
+    "profile": "/users/img/blank-profile-picture.webp",
+    "address": [
+      "เชียงใหม่แถวๆหลังมอ"
+    ],
+    "orders": [
+      [
+        {
+          "item": "Oversized timeless_Shadow Grey",
+          "size": "XXL",
+          "amount": 3
+        },
+        {
+          "item": "Oversized timeless_Burgundy",
+          "size": "XXL",
+          "amount": 2
+        },
+        {
+          "item": "Oversized timeless_Burgundy",
+          "size": "M",
+          "amount": 2
+        }
+      ]
+    ]
+  }
+]
