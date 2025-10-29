@@ -1,6 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import "../../assets/css/styles.css"; // (ถ้ามีสไตล์เฉพาะสำหรับ Navbar)
+import { FaUser } from "react-icons/fa"; // ไอคอน user จาก Font Awesome
+import { BsBag } from "react-icons/bs"; // ไอคอน bag จาก Bootstrap Icons
 
 const Navbar = ({ onLoginClick, onCartClick }) => {
   // --- ดึง state ทั้ง cart และ user ---
