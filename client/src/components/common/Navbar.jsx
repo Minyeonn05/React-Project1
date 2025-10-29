@@ -47,7 +47,7 @@ const Navbar = ({ onLoginClick, onCartClick }) => {
                 <Link to="/shop-default" className="item-link">Shop</Link>
               </li>
               <li className="menu-item position-relative">
-                <Link to="/about-us" className="item-link">About us</Link>
+                <Link to="/AboutPage" className="item-link">About us</Link>
               </li>
             </ul>
           </nav>

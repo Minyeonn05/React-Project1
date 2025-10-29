@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { fetchCart } from './features/cart/cartSlice';
-// ⭐️ เอา import logout ออก เพราะจะจัดการใน AccountSidebar ⭐️
+//  เอา import logout ออก เพราะจะจัดการใน AccountSidebar 
 // import { logout } from './features/auth/authSlice';
 
 // Import Components
@@ -14,8 +14,9 @@ import CartModal from './features/cart/CartModal.jsx';
 // Import Pages
 import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-// ⭐️ 1. Import หน้า My Account ⭐️
-import MyAccountPage from './pages/MyAccountPage'; // (สร้างไฟล์นี้ต่อไป)
+//  1. Import หน้า My Account 
+import MyAccountPage from './pages/MyAccountPage'; 
+import AboutPage from './pages/About.jsx';
 
 // Component ย่อยสำหรับจัดการ Layout และ Logic
 function AppContent() {
@@ -52,6 +53,7 @@ function AppContent() {
         {/* ⭐️ 2. เพิ่ม Route สำหรับ My Account และหน้าย่อย ⭐️ */}
         {/* ใช้ '*' เพื่อรองรับ nested routes ภายใน MyAccountPage */}
         <Route path="/my-account/*" element={<MyAccountPage />} />
+        <Route path="/AboutPage" element={<AboutPage />} />
 
         {/* (เพิ่ม Route อื่นๆ ที่นี่ เช่น /admin ถ้ามี) */}
         {/* <Route path="/admin" element={<AdminPage />} /> */}
