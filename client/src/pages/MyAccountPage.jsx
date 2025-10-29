@@ -1,14 +1,13 @@
-// client/src/pages/MyAccountPage.jsx
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 
-// ⭐️ 1. แก้ไข Import Path ให้ถูกต้อง (ใช้ Relative Paths) ⭐️
-import AccountSidebar from '../components/common/AccountSidebar';
-import AccountDashboard from 'C:/react-app/React-Project1/client/src/features/auth/AccountDashboard.jsx'; // (ไฟล์นี้คุณยังไม่ได้ส่งมา แต่ผมสมมติว่ามีอยู่)
-import AccountDetails from 'C:/react-app/React-Project1/client/src/pages/AccountDetails.jsx';     // 👈 Import ไฟล์จริง
 import AccountOrders from './AccountOrders';       
 import AccountAddresses from './AccountAddresses';   
+import AccountSidebar from "../components/common/AccountSidebar.jsx";
+import AccountDashboard from "../features/auth/AccountDashboard.jsx";
+import AccountDetails from '../pages/AccountDetails.jsx';
+
 
 // ⭐️ 2. ลบ Placeholder components เหล่านี้ออก ⭐️
 // const AccountDetails = () => <div>Account Details Page (Coming Soon)</div>;
