@@ -135,5 +135,5 @@ const AboutPage = () => {
   );
 };
 
-// เพิ่ม export default ที่ท้ายไฟล์เหมือน ShopPage
+
 export default AboutPage;

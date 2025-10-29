@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useProducts } from '../hooks/useProducts';
-import ProductModal from '../component/ProductModal';
-import SizeModal from '../component/SizeModal';
-import ProductTable from '../component/ProductTable';
+import { useProducts } from 'C:/react-app/React-Project1/client/src/features/admin/pages/hooks/useProducts.js';
+import ProductModal from 'C:/react-app/React-Project1/client/src/features/admin/pages/component/ProductModal.jsx';
+import SizeModal from 'C:/react-app/React-Project1/client/src/features/admin/pages/component/ProductTable.jsx';
+import ProductTable from 'C:/react-app/React-Project1/client/src/features/admin/pages/component/ProductTable.jsx';
 
 export default function AdminDashboard() {
   const { products, loading, refetch } = useProducts();

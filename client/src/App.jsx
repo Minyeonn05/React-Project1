@@ -14,9 +14,9 @@ import CartModal from './features/cart/CartModal.jsx';
 // Import Pages
 import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-//  1. Import หน้า My Account 
 import MyAccountPage from './pages/MyAccountPage'; 
 import AboutPage from './pages/About.jsx';
+import AdminDashboard from 'C:/react-app/React-Project1/client/src/features/admin/pages/AdminDashboard';
 
 // Component ย่อยสำหรับจัดการ Layout และ Logic
 function AppContent() {
@@ -50,8 +50,7 @@ function AppContent() {
         <Route path="/shop-default" element={<ShopPage />} />
         <Route path="/product-detail" element={<ProductDetailPage />} />
 
-        {/* ⭐️ 2. เพิ่ม Route สำหรับ My Account และหน้าย่อย ⭐️ */}
-        {/* ใช้ '*' เพื่อรองรับ nested routes ภายใน MyAccountPage */}
+        <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/my-account/*" element={<MyAccountPage />} />
         <Route path="/AboutPage" element={<AboutPage />} />
 
