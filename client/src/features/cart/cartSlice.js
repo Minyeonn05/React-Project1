@@ -128,15 +128,18 @@ export const checkout = createAsyncThunk(
 const cartSlice = createSlice({
   name: 'cart',
   initialState: {
-    items: [],       // Array เก็บสินค้าในตะกร้า [{ item: 'ชื่อ', size: 'ไซส์', amount: จำนวน }]
-    status: 'idle',  // สถานะ: 'idle', 'loading', 'succeeded', 'failed'
-    error: null,     // เก็บข้อความ Error ล่าสุด
+    items: [],
+    status: 'idle',
+    error: null,
   },
   reducers: {
-    // สามารถเพิ่ม reducers ปกติได้ ถ้ามี logic ที่ไม่ต้องยิง API
-    // clearCart: (state) => {
-    //   state.items = [];
-    // }
+   
+   clearCart: (state) => {
+  state.items = []; 
+    state.status = 'idle'; 
+      state.error = null;  
+    }
+    
   },
   // extraReducers ใช้จัดการ state ตามสถานะของ Async Thunks
   extraReducers: (builder) => {
@@ -200,3 +203,4 @@ const cartSlice = createSlice({
 // (ถ้ามี reducers ปกติ ก็ export actions ตรงนี้)
 // export const { clearCart } = cartSlice.actions; 
 export default cartSlice.reducer;
+export const { clearCart } = cartSlice.actions;
