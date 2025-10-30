@@ -5967,7 +5967,6 @@ header.header-bg {
 
 .offcanvas-backdrop {
   background-color: var(--backdrop);
-  cursor: url("../images/item/cursor-close.svg"), auto;
 }
 
 .offcanvas-backdrop.show {
@@ -5987,9 +5986,7 @@ header.header-bg {
   opacity: 1;
 }
 
-.modal {
-  cursor: url("../images/item/cursor-close.svg"), auto;
-}
+
 
 .modal.show .modal-dialog {
   transform: none;
