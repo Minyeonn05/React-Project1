@@ -1,85 +1,42 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer'); // Import multer
-const path = require('path'); // Import path for resolving upload directory
-const fs = require('fs'); // Import fs to ensure directory exists
-const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
+// 1. (สำคัญ) Import service ที่เป็น CommonJS
+// ‼️ (สังเกตว่าเรา import 'getProducts' มาด้วย)
 const productService = require('../services/productServices');
 
-// กำหนด Path ไปยังไฟล์ product.json ของคุณ
-const productsFilePath = path.join(__dirname, '..', 'data', 'product.json');
-
-// Path to your temporary upload directory
+// 2. กำหนด Path (ถูกต้องแล้ว)
+// (นี่คือโฟลเดอร์ "ชั่วคราว" สำหรับ Multer)
 const tempUploadDir = path.join(__dirname, '..', 'temp_uploads');
-const finalUploadDir = path.join(__dirname, '..', 'uploads'); // Define final upload directory
 
-// Ensure temporary and final upload directories exist
+// 3. ตั้งค่า Multer (ถูกต้องแล้ว)
 if (!fs.existsSync(tempUploadDir)) {
     fs.mkdirSync(tempUploadDir, { recursive: true });
 }
-if (!fs.existsSync(finalUploadDir)) {
-    fs.mkdirSync(finalUploadDir, { recursive: true });
-}
+const upload = multer({ dest: tempUploadDir });
 
-// Configure Multer storage to save to a temporary directory first
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, tempUploadDir); // Save to temp directory
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + crypto.randomBytes(16).toString('hex') + path.extname(file.originalname));
-    }
-});
+// --- Routes ---
 
-const upload = multer({ storage: storage });
+// ‼️ --- START: ADDED GET ROUTE --- ‼️
+// นี่คือ Route ที่หายไป ที่ทำให้เกิด Lỗi 404
+router.get('/', productService.getProducts);
+// ‼️ --- END: ADDED GET ROUTE --- ‼️
 
-// --- Helper Functions สำหรับอ่าน/เขียนไฟล์ JSON ---
-const readProductsFile = () => {
-    try {
-        const data = fs.readFileSync(productsFilePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            return []; // ถ้าไฟล์ไม่มี ให้คืนค่าเป็น Array ว่าง
-        }
-        throw error;
-    }
-};
 
-router.get('/', (req, res) => {
-    try {
-        // *** สำคัญ: อ่านไฟล์ JSON จากดิสก์ใหม่ทุกครั้งที่มี GET Request ***
-        const products = readProductsFile();
-        res.json(products);
-    } catch (e) {
-        res.status(400).json({ status: "Error Don't have file"});
-    }
-})
+// (POST /api/products/add)
+// (ใช้ field 'newImages' ให้ตรงกับ ProductModal.jsx)
+router.post('/add', upload.array('newImages', 5), productService.addProduct);
 
-router.post('/add', upload.array('img', 5), (req,res) => {
-    const products = readProductsFile();
-    const response = productService.addProduct(req, res);
-})
+// (POST /api/products/edit)
+router.post('/edit', upload.array('newImages', 5), productService.editProduct);
 
-router.post('/edit', upload.array('img', 5), (req,res) => {
-    const products = readProductsFile();
-    const response = productService.editProduct(req, res);
-})
+// (Route อื่นๆ เหมือนเดิม)
+router.post('/remove', productService.removeProduct);
+router.post('/sizeAdd', productService.sizeAdd);
+router.post('/sizeRemove', productService.sizeRemove);
 
-router.post('/remove', (req,res) => {
-    const products = readProductsFile();
-    const response = productService.removeProduct(req, res);
-})
-
-router.post('/sizeAdd', (req,res) => {
-    const products = readProductsFile();
-    const response = productService.sizeAdd(req, res);
-})
-
-router.post('/sizeRemove', (req,res) => {
-    const products = readProductsFile();
-    const response = productService.sizeRemove(req, res);
-})
-
+// (Export แบบ CommonJS)
 module.exports = router;

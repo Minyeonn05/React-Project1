@@ -535,5 +535,37 @@
         "onShop": true
       }
     ]
+  },
+  {
+    "id": "1761851845701",
+    "name": "sdasd",
+    "img": [
+      "\\temp_uploads\\img-1.png"
+    ],
+    "price": 222,
+    "detail": "dsadas",
+    "type": "dasd",
+    "sizes": [
+      {
+        "size": "M",
+        "onShop": false
+      }
+    ]
+  },
+  {
+    "id": "1761853190136",
+    "name": "dasdas",
+    "img": [
+      "/temp_uploads/1761853190136-Screenshot-2025-10-31-023358.png"
+    ],
+    "price": "333",
+    "detail": "Error",
+    "type": "Dang",
+    "sizes": [
+      {
+        "size": "M",
+        "onShop": false
+      }
+    ]
   }
 ]

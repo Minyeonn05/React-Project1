@@ -1,87 +1,126 @@
 import React, { useState, useEffect } from 'react';
 import "../../../assets/css/AdminDashboard.css";
 
+// ‼️ --- (นี่คือเวอร์ชันที่ใช้ FormData (File Upload) --- ‼️
 
-// รับ props 4 ตัว
 export default function ProductModal({ isOpen, onClose, onSave, product, mode }) {
   
-  // 2. สร้าง State สำหรับเก็บข้อมูลในฟอร์มทั้งหมด
   const initialFormState = {
     name: '',
     price: '',
     category: '',
     description: '',
-    images: '', // เราจะใช้ Textarea ให้ใส่ URL ทีละบรรทัด
   };
+  
   const [formData, setFormData] = useState(initialFormState);
+  
+  // 1. แยก State สำหรับไฟล์
+  const [existingImages, setExistingImages] = useState([]); // รูปเก่า (ที่เป็น Path)
+  const [newImages, setNewImages] = useState(null); // รูปใหม่ (ที่เป็น File Object)
+  
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- 3. 🌟 นี่คือส่วนที่สำคัญที่สุด (การเติมข้อมูล) ---
   useEffect(() => {
-    // เมื่อ Modal เปิดขึ้นมา
     if (isOpen) {
       if (mode === 'edit' && product) {
-        // ถ้าเป็นโหมด 'edit' และมี 'product' ส่งมา
-        // ให้เติมข้อมูลจาก 'product' ลงในฟอร์ม
+        // เติมข้อมูล Text
         setFormData({
           name: product.name || '',
           price: product.price || '',
-          category: product.category || '',
-          description: product.description || '',
-          // แปลง Array (product.img) กลับเป็น String (ทีละบรรทัด)
-          images: product.img ? product.img.join('\n') : '',
+          category: product.type || '',     // ‼️ อ่านจาก 'type'
+          description: product.detail || '', // ‼️ อ่านจาก 'detail'
         });
+        // เติมข้อมูลรูปเก่า
+        setExistingImages(product.img || []);
+        setNewImages(null); // เคลียร์ไฟล์ใหม่ที่เลือกค้างไว้
       } else {
-        // ถ้าเป็นโหมด 'add' ให้เคลียร์ฟอร์ม
+        // โหมด 'add'
         setFormData(initialFormState);
+        setExistingImages([]);
+        setNewImages(null);
       }
     }
-  }, [isOpen, mode, product]); // ทำงานใหม่ทุกครั้งที่ค่าเหล่านี้เปลี่ยน
+  }, [isOpen, mode, product]);
 
-  // 4. Function เมื่อมีการพิมพ์ในฟอร์ม
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 5. Function เมื่อกดปุ่ม Save (จัดการทั้ง Add และ Edit)
+  // 2. Function เมื่อเลือกไฟล์
+  const handleFileChange = (e) => {
+    setNewImages(e.target.files); // e.target.files คือ FileList
+  };
+  
+  // 3. Function ลบรูปเก่า (ตอน Edit)
+  const removeExistingImage = (imgToRemove) => {
+    setExistingImages(prev => prev.filter(img => img !== imgToRemove));
+  };
+
+  // 4. ‼️ (สำคัญ) handleSubmit ที่ใช้ FormData
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // 6. เตรียมข้อมูลที่จะส่ง (Payload)
-    // แปลง String จาก Textarea กลับเป็น Array
-    const imageArray = formData.images.split('\n').filter(Boolean); // filter(Boolean) ลบบรรทัดว่าง
+    // 5. สร้าง FormData
+    const payload = new FormData();
+
+    // 6. เพิ่มข้อมูล Text ทั้งหมดลงใน FormData
+    payload.append('name', formData.name);
+    payload.append('price', parseFloat(formData.price) || 0);
+    payload.append('category', formData.category);
+    payload.append('description', formData.description);
+
+    // 7. (สำคัญ) เพิ่มไฟล์ใหม่ (ถ้ามี)
+    // เราใช้ชื่อ field 'newImages' (ที่ต้องตรงกับ Multer ใน Server/Router)
+    if (newImages && newImages.length > 0) {
+      for (let i = 0; i < newImages.length; i++) {
+        payload.append('newImages', newImages[i]);
+      }
+    }
     
-    const payload = {
-      ...formData,
-      img: imageArray, // ใช้ 'img' key ให้ตรงกับ ProductCard
-      price: parseFloat(formData.price) || 0,
-    };
-    delete payload.images; // ลบ key 'images' ที่เราใช้ชั่วคราวทิ้ง
-
-    // 7. เลือก URL และ Method ตาม 'mode'
-    let url = 'http://localhost:5000/api/products';
-    let method = 'POST'; // Default คือ 'add'
-
+    // 8. (สำคัญ) เพิ่ม Array รูปเก่าที่ยังเหลืออยู่ (ถ้าเป็นโหมด Edit)
+    // เราส่งรูปเก่ากลับไปเป็น Text ธรรมดา
     if (mode === 'edit') {
-      // (ผมเดา API path จากโค้ด remove ของคุณนะครับ)
-      url = 'http://localhost:5000/api/products/edit'; 
-      payload.id = product.id; // ‼️ ต้องส่ง id ของสินค้าที่จะแก้ไปด้วย
-    } else {
-      url = 'http://localhost:5000/api/products/add';
+      payload.append('id', product.id); // ‼️ ส่ง ID ตอน Edit
+      existingImages.forEach(img => {
+        // ‼️ (สำคัญ) เราต้องเปลี่ยนชื่อ field 'img[]' ไม่ให้ซ้ำกับ 'newImages'
+        // แต่... ใน service (editProduct) เรารับเป็น req.body.img
+        // ดังนั้น เราต้องส่งแบบนี้:
+        payload.append('img', img);
+      });
+      // ถ้าไม่มีรูปเก่าเหลืออยู่เลย (ลบหมด) เราต้องส่งค่าว่างไป
+      if (existingImages.length === 0) {
+        payload.append('img', '');
+      }
     }
 
+    // 9. เลือก URL (เหมือนเดิม)
+    let url = (mode === 'edit') 
+      ? 'http://localhost:5000/api/products/edit' 
+      : 'http://localhost:5000/api/products/add';
+
     try {
+      // 10. ‼️ (สำคัญ) fetch ที่ใช้ FormData
       const response = await fetch(url, {
-        method: method, // (ในโค้ดของคุณอาจจะเป็น 'POST' ทั้งคู่)
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        method: 'POST',
+        // ‼️ ไม่ต้องใส่ 'Content-Type'
+        // Browser จะตั้งค่า 'multipart/form-data' ให้เอง
+        body: payload, 
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save product');
+        // (เราอาจจะไม่ได้ JSON กลับมาถ้า Server พัง)
+        const errorText = await response.text();
+        console.error("Server Response (Error):", errorText);
+        try {
+            // ลอง parse ดู ถ้าได้ JSON ก็ใช้ message
+            const errorData = JSON.parse(errorText);
+            throw new Error(errorData.status || 'Failed to save product');
+        } catch (e) {
+            // ถ้า parse ไม่ได้ (เช่น เป็น HTML error)
+            throw new Error(errorText || 'Failed to save product');
+        }
       }
       
       alert(`Product ${mode === 'edit' ? 'updated' : 'added'} successfully!`);
@@ -96,9 +135,6 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode })
     }
   };
 
-  
-
-  // 8. ถ้า isOpen เป็น false ไม่ต้อง render อะไรเลย
   if (!isOpen) return null;
 
   return (
@@ -106,90 +142,78 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode })
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <header className="modal-header">
           <h2>{mode === 'edit' ? 'Edit Product' : 'Add New Product'}</h2>
-
         </header>
         
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             
+            {/* (Form fields เหมือนเดิม) */}
             <div className="form-group">
               <label htmlFor="name">Product Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                className="form-input"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <input id="name" name="name" type="text" className="form-input" value={formData.name} onChange={handleChange} required />
             </div>
-            
             <div className="form-group">
               <label htmlFor="price">Price</label>
-              <input
-                id="price"
-                name="price"
-                type="number"
-                step="0.01"
-                className="form-input"
-                value={formData.price}
-                onChange={handleChange}
-                required
-              />
+              <input id="price" name="price" type="number" step="0.01" className="form-input" value={formData.price} onChange={handleChange} required />
             </div>
-            
             <div className="form-group">
               <label htmlFor="category">Category</label>
-              <input
-                id="category"
-                name="category"
-                type="text"
-                className="form-input"
-                value={formData.category}
-                onChange={handleChange}
-              />
+              <input id="category" name="category" type="text" className="form-input" value={formData.category} onChange={handleChange} />
             </div>
-
             <div className="form-group">
               <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                name="description"
-                className="form-textarea"
-                value={formData.description}
-                onChange={handleChange}
+              <textarea id="description" name="description" className="form-textarea" value={formData.description} onChange={handleChange} />
+            </div>
+
+            {/* ‼️ --- START: IMAGE UPLOAD SECTION --- ‼️ */}
+
+            {/* 1. ช่องสำหรับ "เลือกไฟล์ใหม่" */}
+            <div className="form-group">
+              <label htmlFor="images">Upload New Images</label>
+              <input
+                id="images"
+                name="newImages" // ‼️ (ชื่อนี้ต้องตรงกับ Multer)
+                type="file"
+                className="form-input"
+                multiple // ‼️ ทำให้เลือกหลายไฟล์ได้
+                onChange={handleFileChange}
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="images">Image URLs (หนึ่ง URL ต่อหนึ่งบรรทัด)</label>
-              <textarea
-                id="images"
-                name="images"
-                className="form-textarea"
-                placeholder="/uploads/image1.jpg&#10;/uploads/image2.jpg"
-                value={formData.images}
-                onChange={handleChange}
-              />
-            </div>
+            {/* 2. ช่องสำหรับ "พรีวิว/ลบ รูปเก่า" (จะโชว์เฉพาะโหมด Edit) */}
+            {mode === 'edit' && existingImages.length > 0 && (
+              <div className="form-group">
+                <label>Existing Images</label>
+                <div className="existing-images-grid">
+                  {existingImages.map(imgSrc => (
+                    <div key={imgSrc} className="existing-image-item">
+                      <img 
+                        src={`http://localhost:5000${imgSrc}`} 
+                        alt="Existing product"
+                        onError={(e) => e.target.src = 'https://placehold.co/100x100?text=Error'} 
+                      />
+                      <button 
+                        type="button" 
+                        className="btn-remove-image"
+                        onClick={() => removeExistingImage(imgSrc)}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* ‼️ --- END: IMAGE UPLOAD SECTION --- ‼️ */}
 
           </div>
           
           <footer className="modal-footer">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onClose}
-              disabled={isLoading}
-            >
+            <button type="button" className="btn-secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary" // ใช้คลาสปุ่มหลัก
-              disabled={isLoading}
-            >
+            <button type="submit" className="btn btn-primary" disabled={isLoading}>
               {isLoading ? 'Saving...' : (mode === 'edit' ? 'Update Product' : 'Add Product')}
             </button>
           </footer>
