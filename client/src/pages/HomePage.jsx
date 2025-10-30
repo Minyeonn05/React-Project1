@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom'; // 1. Import Link สำหรับ React Router
-import 'C:/react-app/React-Project1/client/src/assets/css/animate.css'; 
-import 'C:/react-app/React-Project1/client/src/assets/css/styles.css';
+import '../assets/css/animate.css'; 
+import '../assets/css/styles.css';
 
 function HomePage() {
   const slides = useMemo(
