@@ -98,7 +98,7 @@ const Navbar = ({ onLoginClick, onCartClick }) => {
           <div className="row wrapper-header align-items-center">
           {/* ... ส่วน Logo และ Mobile Menu ... */}
           <div className="col-xl-3 col-md-4 col-6">
-            <Link to="/" className="logo-header">
+            <Link to="HomePage" className="logo-header">
               <img src="/images/logo/logo.svg" alt="logo" className="logo" />
               {/* 👆 แนะนำให้ย้าย logo.svg ไปไว้ใน /public/images/logo/ */}
             </Link>

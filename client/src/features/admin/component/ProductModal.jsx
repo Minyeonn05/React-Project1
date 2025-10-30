@@ -66,7 +66,7 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode })
 
     if (mode === 'edit') {
       // (ผมเดา API path จากโค้ด remove ของคุณนะครับ)
-      url = 'http://localhost:5000/api/products/update'; 
+      url = 'http://localhost:5000/api/products/edit'; 
       payload.id = product.id; // ‼️ ต้องส่ง id ของสินค้าที่จะแก้ไปด้วย
     } else {
       url = 'http://localhost:5000/api/products/add';
@@ -96,6 +96,7 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode })
     }
   };
 
+  
 
   // 8. ถ้า isOpen เป็น false ไม่ต้อง render อะไรเลย
   if (!isOpen) return null;

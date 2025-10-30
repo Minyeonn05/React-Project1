@@ -7,9 +7,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const productFilePath = path.join(__dirname, "..", "data", "product.json");
-const finalUploadDir = path.join(__dirname, '..', 'uploads'); // Reference to final upload directory
+// --- START: PATH CHANGE ---
+// เปลี่ยนโฟลเดอร์ปลายทางจาก 'uploads' เป็น 'temp_uploads'
+const finalUploadDir = path.join(__dirname, '..', 'temp_uploads'); // Reference to final upload directory
+// --- END: PATH CHANGE ---
 
 // Helper function to clean up temporary uploaded files
+// (ฟังก์ชันนี้จะไม่มีผลกับ addProduct/editProduct ที่ส่ง JSON
+// แต่มันอาจจะมีประโยชน์กับส่วนอื่นของ Server ที่ใช้ Multer จริงๆ)
 function cleanupTempFiles(files) {
     if (files && files.length > 0) {
         files.forEach(file => {
@@ -26,8 +31,10 @@ function cleanupTempFiles(files) {
 function deleteFinalFiles(filePaths) {
     if (filePaths && filePaths.length > 0) {
         filePaths.forEach(relativePath => {
-            // Ensure the path starts with /uploads/ for security and consistency
-            if (relativePath.startsWith('/uploads/')) {
+            // --- START: PATH CHANGE ---
+            // เปลี่ยน Path ที่ตรวจสอบจาก '/uploads/' เป็น '/temp_uploads/'
+            if (relativePath.startsWith('/temp_uploads/')) {
+            // --- END: PATH CHANGE ---
                 const filename = path.basename(relativePath);
                 const fullPath = path.join(finalUploadDir, filename);
                 if (fs.existsSync(fullPath)) {
@@ -40,125 +47,87 @@ function deleteFinalFiles(filePaths) {
 }
 
 function addProduct(req, res) {
-    const { id, name, price, detail, type, size, onShop } = req.body;
-    // req.files will contain an array of uploaded image files
-    //const imgPaths = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
-    const uploadedFiles = req.files; // Get the array of uploaded files from Multer
+    // --- START: FIX for JSON Payload ---
+    // รับ 'img' (ที่เป็น Array of strings) มาจาก req.body
+    // ไม่ต้องใช้ req.files อีกต่อไป
+    const { id, name, price, detail, type, size, onShop, img } = req.body;
+    // const uploadedFiles = req.files; // <--- ลบออก
+    // --- END: FIX for JSON Payload ---
 
-    let on_off;
+
+    // --- START: FIX for 'onShop error' ---
+    // Set default value for on_off to prevent 'undefined' error
+    // Convert string 'true'/'false' to boolean, default to false if not provided
+    let on_off = false; // Default value
     if (onShop === 'true' || onShop === true) {
         on_off = true;
-    } else if (onShop === 'false' || onShop === false) {
-        on_off = false;
     }
+    // --- END: FIX for 'onShop error' ---
 
-    // Ensure onShop is a boolean
+    const filePath = path.join(__dirname, "..", "data", "product.json");
+    let products = [];
+
+    // --- START: FIX for JSON Payload ---
+    // ลบ Helper 'processUploadAndCreateProduct' ทิ้ง
+    // เพราะเราไม่ได้ "ย้าย" ไฟล์อีกแล้ว เราแค่ "บันทึก" path ที่ได้มา
+
     const product = {
         id,
         name,
-        img: [],
+        img: img || [], // ใช้ 'img' array ที่รับมาจาก req.body (ถ้าไม่มีให้เป็น array ว่าง)
         price,
         detail,
         type,
         sizes: [{
             size: size,
-            onShop: on_off
+            onShop: on_off // Use the sanitized boolean value
         }]
     };
 
-    const filePath = path.join(__dirname, "..", "data", "product.json");
-    let products = [];
-
     if (fs.existsSync(filePath)) {
-        if (on_off === true || on_off === false) {
-            let dataProduct = fs.readFileSync(filePath, "utf-8");
+        let dataProduct = fs.readFileSync(filePath, "utf-8");
+        try {
             products = JSON.parse(dataProduct);
-            let findId = -1;
-            for (let i = 0; i < products.length; i++) {
-                if (products[i].id == id) {
-                    findId = i;
-                    break;
-                }
-            }
-            if (findId == -1) {
-                // If all validations pass, move files to final destination and prepare product data
-                const imgPaths = [];
-                if (uploadedFiles && uploadedFiles.length > 0) {
-                    uploadedFiles.forEach(file => {
-                        const oldPath = file.path; // Path in temp_uploads
-                        const newFilename = path.basename(file.path); // Just the filename
-                        const newPath = path.join(finalUploadDir, newFilename); // Path in final uploads
-
-                        try {
-                            fs.renameSync(oldPath, newPath); // Move the file
-                            imgPaths.push(`/uploads/${newFilename}`); // Store the public path
-                        } catch (error) {
-                            console.error(`Error moving file ${oldPath} to ${newPath}:`, error);
-                            // If a file move fails, clean up all files that were successfully moved so far
-                            cleanupTempFiles(uploadedFiles.filter(f => f.path !== oldPath)); // Clean up remaining temp files
-                            imgPaths.forEach(movedPath => { // Clean up already moved files if an error occurs
-                                const fullMovedPath = path.join(__dirname, '..', movedPath);
-                                if (fs.existsSync(fullMovedPath)) {
-                                    fs.unlinkSync(fullMovedPath);
-                                }
-                            });
-                            return res.status(500).json({ status: "Server error: Could not save all product images." });
-                        }
-                    });
-                }
-
-                const product = {
-                    id,
-                    name,
-                    img: imgPaths, // Store the paths to the final uploaded images
-                    price,
-                    detail,
-                    type,
-                    sizes: [{
-                        size: size,
-                        onShop: on_off
-                    }]
-                };
-
-                products.push(product)
-                fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
-                console.log('AddProduct successfully', { id });
-                res.status(200).json({ status: 'AddProduct successfully', product })
-            } else {
-                console.log('AddProduct idsame error', { id });
-                res.status(400).json({ status: 'AddProduct idsame error', product })
-            }
-
-        } else {
-            console.log('AddProduct onShop error', { id });
-            res.status(400).json({ status: 'AddProduct onShop error', product })
+        } catch (e) {
+            console.error("Error parsing product.json:", e);
+            // (เราไม่ได้อัปโหลดไฟล์ เลยไม่ต้อง cleanupTempFiles)
+            return res.status(500).json({ status: "Error reading product data." });
         }
+        
+        // Check for duplicate ID
+        let findId = products.findIndex(p => p.id == id);
+        if (findId !== -1) {
+            console.log('AddProduct idsame error', { id });
+            // (เราไม่ได้ย้ายไฟล์ เลยไม่ต้อง deleteFinalFiles)
+            return res.status(400).json({ status: 'AddProduct idsame error', product });
+        }
+
+        products.push(product);
+        fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
+        console.log('AddProduct successfully', { id });
+        return res.status(200).json({ status: 'AddProduct successfully', product });
+
     } else {
-        if (on_off === true || on_off === false) {
-            products.push(product)
-            fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
-            console.log('AddProduct successfully', { id });
-            res.status(200).json({ status: 'AddProduct successfully', product })
-        } else {
-            console.log('AddProduct onShop error', { id });
-            res.status(400).json({ status: 'AddProduct onShop error', product })
-        }
+        // File doesn't exist, this is the first product.
+        products.push(product);
+        fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
+        console.log('AddProduct successfully (new file)', { id });
+        return res.status(200).json({ status: 'AddProduct successfully', product });
     }
+    // --- END: FIX for JSON Payload ---
 }
 
+
 function editProduct(req, res) {
-    const { id, name, price, detail, type } = req.body;
-    const uploadedFiles = req.files; // New uploaded files (from temp_uploads)
+    // --- START: FIX for JSON Payload ---
+    // รับ 'img' (ที่เป็น Array of strings) มาจาก req.body
+    // ไม่ต้องใช้ req.files อีกต่อไป
+    const { id, name, price, detail, type, img } = req.body;
+    // const uploadedFiles = req.files; // <--- ลบออก
+    // --- END: FIX for JSON Payload ---
 
     const filePath = path.join(__dirname, "..", "data", "product.json");
     let products = [];
-
-    // let on_off;
-    // if (onShop === 'true' || onShop === true) {
-    //     on_off = true;
-    // } else if (onShop === 'false' || onShop === false) {
-    //     on_off = false;
-    // }
 
     if (fs.existsSync(filePath)) {
         let dataProduct = fs.readFileSync(filePath, "utf-8");
@@ -173,53 +142,36 @@ function editProduct(req, res) {
         const oldProduct = products[findId];
         let newImgPaths = [];
         if (findId == -1) {
-            console.log('AddProduct NotHaveId error', { id });
-            res.status(400).json({ status: 'AddProduct NotHaveId error', oldProduct })
+            console.log('EditProduct NotHaveId error', { id });
+            // (ไม่ต้อง cleanupTempFiles)
+            return res.status(400).json({ status: 'EditProduct NotHaveId error', oldProduct });
         } else {
-            if (uploadedFiles && uploadedFiles.length > 0) {
-                // Case 1: New images are uploaded
-                // Move new files from temp_uploads to uploads
-                for (const file of uploadedFiles) {
-                    const oldPath = file.path;
-                    const newFilename = path.basename(file.path);
-                    const newPath = path.join(finalUploadDir, newFilename);
-                    try {
-                        fs.renameSync(oldPath, newPath);
-                        newImgPaths.push(`/uploads/${newFilename}`);
-                    } catch (error) {
-                        console.error(`Error moving new file ${oldPath} to ${newPath} during edit:`, error);
-                        // Clean up any files that were already moved
-                        deleteFinalFiles(newImgPaths); // Delete newly moved files if error occurs
-                        cleanupTempFiles(uploadedFiles.filter(f => f.path !== oldPath)); // Delete remaining temp files
-                        return res.status(500).json({ status: "Server error: Could not save all new product images during edit." });
-                    }
-                }
-                // Delete old images associated with this product
-                deleteFinalFiles(oldProduct.img);
-            } else if (req.body.img) {
-                // Case 2: No new files uploaded, but img paths are sent in req.body
-                // This means the client might have sent back the original paths, or changed some of them
-                // Ensure req.body.img is an array of strings
-                if (!Array.isArray(req.body.img)) {
-                    // If it's a single string, make it an array
-                    if (typeof req.body.img === 'string') {
-                        newImgPaths = [req.body.img];
+            // --- START: FIX for JSON Payload ---
+            // ลบ Case 1 (ที่เช็ค uploadedFiles) ทิ้ง
+            // เพราะเราไม่ได้รับ 'req.files' อีกต่อไป
+
+            // Case 2 (ที่เช็ค req.body.img) จะกลายเป็น Logic หลัก
+            if (img) { // 'img' คือ array ที่ส่งมาจาก req.body
+                // (โค้ดข้างในนี้เกือบถูกอยู่แล้ว)
+                if (!Array.isArray(img)) {
+                    if (typeof img === 'string') {
+                        newImgPaths = [img];
                     } else {
                         console.log('EditProduct img format error: img must be an array or string of paths.', { id });
                         return res.status(400).json({ status: 'EditProduct img format error', product: { id } });
                     }
                 } else {
-                    newImgPaths = req.body.img;
+                    newImgPaths = img;
                 }
-
                 // Compare old paths with new paths and delete old files that are no longer needed
                 const oldPathsToDelete = oldProduct.img.filter(oldPath => !newImgPaths.includes(oldPath));
                 deleteFinalFiles(oldPathsToDelete);
 
             } else {
-                // Case 3: No new files uploaded and no img paths in req.body, keep old images
+                // Case 3: No img paths in req.body, keep old images
                 newImgPaths = oldProduct.img;
             }
+            // --- END: FIX for JSON Payload ---
 
             const updatedProduct = {
                 id,
@@ -228,17 +180,18 @@ function editProduct(req, res) {
                 price: price || oldProduct.price,
                 detail: detail || oldProduct.detail,
                 type: type || oldProduct.type,
-                sizes: oldProduct.sizes
+                sizes: oldProduct.sizes // Keep old sizes
             };
 
             products[findId] = updatedProduct;
             fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
             console.log('EditProduct successfully', { id });
-            res.status(200).json({ status: 'EditProduct successfully', updatedProduct })
+            res.status(200).json({ status: 'EditProduct successfully', updatedProduct });
         }
     } else {
         console.log('EditProduct NotHaveFile error', { id });
-        res.status(400).json({ status: 'EditProduct NotHaveFile error', oldProduct })
+        // (ไม่ต้อง cleanupTempFiles)
+        res.status(400).json({ status: 'EditProduct NotHaveFile error' });
     }
 }
 
@@ -292,8 +245,12 @@ function sizeAdd(req, res) {
         on_off = true;
     } else if (onShop === 'false' || onShop === false) {
         on_off = false;
+    } else {
+        // Default value if onShop is undefined or invalid
+        on_off = false; 
     }
-    const product = {
+
+    const productSize = {
         size: size,
         onShop: on_off
     };
@@ -321,17 +278,19 @@ function sizeAdd(req, res) {
                     break;
                 }
             }
-            //console.log(sizeSame);
+            
             if (sizeSame == -1) {
-                products[findId].sizes.push(product);
+                // Add new size
+                products[findId].sizes.push(productSize);
                 fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
-                console.log('AddSize successfully', { id });
-                res.status(200).json({ status: 'AddSize successfully', product })
+                console.log('AddSize successfully (new)', { id, size });
+                res.status(200).json({ status: 'AddSize successfully (new)', productSize });
             } else {
-                products[findId].sizes[sizeSame] = product;
+                // Update existing size
+                products[findId].sizes[sizeSame] = productSize;
                 fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
-                console.log('AddSize successfully', { id });
-                res.status(200).json({ status: 'AddSize successfully', product })
+                console.log('AddSize successfully (update)', { id, size });
+                res.status(200).json({ status: 'AddSize successfully (update)', productSize });
             }
 
         }
@@ -371,10 +330,10 @@ function sizeRemove(req, res) {
                 console.log('RemoveSize SizeNotFind error', { id });
                 res.status(400).json({ status: 'RemoveSize SizeNotFind error', id, size })
             } else {
-                //products[findId].sizes[sizeSame] = product;
+                
                 const removedSizes = products[findId].sizes.splice(sizeSame, 1);
                 fs.writeFileSync(filePath, JSON.stringify(products, null, 2));
-                console.log('RemoveSize successfully', { id });
+                console.log('RemoveSize successfully', { id, size });
                 res.status(200).json({ status: 'RemoveSize successfully', removedSizes })
             }
         }
@@ -391,3 +350,4 @@ export const productService = {
     sizeAdd,
     sizeRemove
 };
+
