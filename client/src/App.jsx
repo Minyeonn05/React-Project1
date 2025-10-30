@@ -16,7 +16,8 @@ import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import MyAccountPage from './pages/MyAccountPage'; 
 import AboutPage from './pages/About.jsx';
-import AdminDashboard from 'C:/react-app/React-Project1/client/src/features/admin/pages/AdminDashboard';
+import AdminDashboard from "./features/admin/pages/AdminDashboard";
+import AdminOrdersPages from './features/admin/pages/AdminOrdersPages.jsx';
 
 // Component ย่อยสำหรับจัดการ Layout และ Logic
 function AppContent() {
@@ -50,12 +51,13 @@ function AppContent() {
         <Route path="/shop-default" element={<ShopPage />} />
         <Route path="/product-detail" element={<ProductDetailPage />} />
 
-        <Route path="/AdminDashboard" element={<AdminDashboard />} />
+        {/* Routes สำหรับ My Account */}
         <Route path="/my-account/*" element={<MyAccountPage />} />
         <Route path="/AboutPage" element={<AboutPage />} />
 
         {/* (เพิ่ม Route อื่นๆ ที่นี่ เช่น /admin ถ้ามี) */}
         <Route path="/AdminDashboard" element={<AdminDashboard />} /> 
+        <Route path="/admin/orders" element={<AdminOrdersPages />} />
         
       </Routes>
 

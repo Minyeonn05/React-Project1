@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import 'C:/react-app/React-Project1/client/src/assets/css/AdminDashboard.css';
+import "../../../assets/css/AdminDashboard.css";
+
 
 // รับ props 4 ตัว
 export default function ProductModal({ isOpen, onClose, onSave, product, mode }) {
