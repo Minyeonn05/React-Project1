@@ -1,6 +1,7 @@
 import React from 'react';
 
-export default function AboutPage() {
+// เปลี่ยนจาก export default function AboutPage() มาเป็น const
+const AboutPage = () => {
   return (
     <div className="about-page">
       {/* Hero / Banner (from original about-us.html) */}
@@ -132,4 +133,7 @@ export default function AboutPage() {
       </div>
     </div>
   );
-}
+};
+
+
+export default AboutPage;

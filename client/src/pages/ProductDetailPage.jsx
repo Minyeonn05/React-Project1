@@ -1,13 +1,9 @@
-// client/src/pages/ProductDetailPage.jsx
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchProducts } from '../features/Product/productSlice';
 import { addToCart } from '../features/Cart/cartSlice';
-
-// Import Swiper React components and styles
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
 import 'swiper/css';
@@ -16,11 +12,10 @@ import 'swiper/css/thumbs';
 import 'swiper/css/free-mode';
 
 
-// (Optional) Import drift-zoom library or find a React equivalent if needed
-// import Drift from 'drift-zoom';
+
 
 const ProductDetailPage = () => {
-  // --- Hooks called at the Top Level ---
+  
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('id');
 
@@ -34,15 +29,14 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
-  // --- useEffects ---
-  // Fetch all products if not already loaded
+  
   useEffect(() => {
     if (productStatus === 'idle') {
       dispatch(fetchProducts());
     }
   }, [productStatus, dispatch]);
 
-  // Find the specific product and set default size once products are loaded
+  
   useEffect(() => {
     if (productStatus === 'succeeded' && allProducts.length > 0 && productId) {
       const foundProduct = allProducts.find(p => p.id === productId);
@@ -55,31 +49,25 @@ const ProductDetailPage = () => {
           const largestAvailableSize = availableSizes.reduce((largest, current) => {
             return sizeOrder.indexOf(current.size) > sizeOrder.indexOf(largest.size) ? current : largest;
           }).size;
-          // Set default size only if no size is selected yet or the current selection is invalid
+          
           if (!selectedSize || !availableSizes.some(s => s.size === selectedSize)) {
              setSelectedSize(largestAvailableSize);
           }
         } else {
-            setSelectedSize(''); // Clear size if none are available
+            setSelectedSize(''); 
         }
       } else {
-        setProduct(null); // Set product to null if not found
+        setProduct(null); 
         setSelectedSize('');
       }
     }
-  }, [productStatus, allProducts, productId, selectedSize, dispatch]); // Added dispatch
+  }, [productStatus, allProducts, productId, selectedSize, dispatch]); 
 
-  // (Optional) Initialize zoom library after images load
-  // useEffect(() => {
-  //   if (product && product.img && product.img.length > 0) {
-  //     // Logic to initialize Drift or similar zoom library
-  //   }
-  // }, [product]);
+  
 
-  // --- Memoized Size Options ---
-  // useMemo moved to the top level, before conditional returns
+  
   const sizeOptions = useMemo(() => {
-    if (!product || !product.sizes) return []; // Guard clause
+    if (!product || !product.sizes) return []; 
 
     const sizeOrder = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', '6XL'];
     const sortedSizes = [...product.sizes].sort((a, b) => sizeOrder.indexOf(a.size) - sizeOrder.indexOf(b.size));
@@ -94,7 +82,7 @@ const ProductDetailPage = () => {
               id={`values-${sizeInfo.size}`}
               value={sizeInfo.size}
               checked={selectedSize === sizeInfo.size}
-              onChange={(e) => setSelectedSize(e.target.value)} // Update state directly
+              onChange={(e) => setSelectedSize(e.target.value)} 
             />
             <label className="style-text" htmlFor={`values-${sizeInfo.size}`} data-value={sizeInfo.size}>
               <p>{sizeInfo.size}</p>
@@ -107,9 +95,9 @@ const ProductDetailPage = () => {
         )}
       </React.Fragment>
     ));
-  }, [product, selectedSize]); // Dependencies are product and selectedSize
+  }, [product, selectedSize]); 
 
-  // --- Handlers ---
+  
   const handleQuantityChange = (amount) => {
     setQuantity((prev) => Math.max(1, prev + amount));
   };
@@ -117,7 +105,7 @@ const ProductDetailPage = () => {
   const handleAddToCartClick = () => {
     if (!user) {
       alert('กรุณาเข้าสู่ระบบเพื่อเพิ่มสินค้าลงในรถเข็น');
-      // Ideally, trigger the login modal here instead of alert
+      
       return;
     }
     if (!selectedSize) {
@@ -141,8 +129,7 @@ const ProductDetailPage = () => {
     });
   };
 
-  // --- Conditional Renders ---
-  // These must come AFTER all hook calls
+
   if (productStatus === 'loading') {
     return <p className="text-center p-5">กำลังโหลด...</p>;
   }
@@ -151,15 +138,13 @@ const ProductDetailPage = () => {
     return <h1 className="text-center p-5">ไม่พบสินค้า</h1>;
   }
 
-  // --- Main Render ---
+  
   return (
     <>
-      {/* --- Breadcrumb --- */}
       <div className="tf-breadcrumb">
         <div className="container">
           <div className="tf-breadcrumb-wrap d-flex justify-content-between flex-wrap align-items-center">
             <div className="tf-breadcrumb-list">
-              {/* You might want to fetch and display category info here */}
               <span className="text">{product.name}</span>
             </div>
           </div>
@@ -199,11 +184,6 @@ const ProductDetailPage = () => {
       {/* Main Image Swiper */}
       <Swiper
           spaceBetween={10}
-          // ❌ ลบ property 'navigation' ออก ❌
-          // navigation={{
-          //     nextEl: '.thumbs-next',
-          //     prevEl: '.thumbs-prev',
-          // }}
           thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
           modules={[FreeMode, Navigation, Thumbs]} // Navigation module อาจจะไม่จำเป็นแล้ว
           className="tf-product-media-main"
@@ -219,9 +199,7 @@ const ProductDetailPage = () => {
                   </div>
               </SwiperSlide>
           ))}
-          {/* ❌ ลบ div ของปุ่มลูกศรออก ❌ */}
-          {/* <div className="swiper-button-next button-style-arrow thumbs-next"></div> */}
-          {/* <div className="swiper-button-prev button-style-arrow thumbs-prev"></div> */}
+          
       </Swiper>
     </div>
   </div>

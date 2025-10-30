@@ -1,8 +1,19 @@
-import { useState } from 'react';
-import { useProducts } from '../hooks/useProducts';
-import ProductModal from '../component/ProductModal';
-import SizeModal from '../component/SizeModal';
-import ProductTable from '../component/ProductTable';
+import { useState } from 'react'; 
+// --- START: PATH FIXES ---
+import { useProducts } from "../hooks/useProducts";
+import ProductModal from "../component/ProductModal";
+import SizeModal from "../component/SizeModal";
+import ProductTable from "../component/ProductTable";
+// 2. Import CSS (Corrected relative path)
+import "../../../assets/css/AdminDashboard.css";
+
+// --- END: PATH FIXES ---
+
+import { 
+  FiPackage, 
+  FiShoppingCart, 
+  FiLogOut
+} from 'react-icons/fi';
 
 export default function AdminDashboard() {
   const { products, loading, refetch } = useProducts();
@@ -10,19 +21,19 @@ export default function AdminDashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // searchTerm และ filteredProducts ถูกย้ายไปอยู่ใน ProductTable.jsx แล้ว!
 
   const handleRemoveProduct = async (productId) => {
+    // ... (โค้ดเดิม)
     if (!confirm(`Remove product ${productId}?`)) return;
-
     try {
       const response = await fetch('http://localhost:5000/api/products/remove', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: productId }),
       });
-
       if (!response.ok) throw new Error('Failed to remove product');
-      
       alert('Product removed successfully!');
       refetch();
     } catch (error) {
@@ -33,85 +44,94 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('loggedInUser');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('persist:root'); // If using Redux persist
+      localStorage.removeItem('token');
+      // --- END: ADDED LOGOUT LOGIC ---
+
       alert('You have been logged out.');
       window.location.href = '/';
     }
   };
 
+  // 4. สร้าง Helper function เพื่อส่งให้ ProductTable
+  const handleEditClick = (product) => {
+    setSelectedProduct(product);
+    setShowEditModal(true);
+  };
+
+  const handleSizeClick = (product) => {
+    setSelectedProduct(product);
+    setShowSizeModal(true);
+  };
+
+
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loading-text">Loading...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Admin</h1>
+    <div className="admin-dashboard">
+      <header className="admin-header">
+        <div className="container">
+          <h1>Admin</h1>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <aside className="lg:col-span-1">
-            <nav className="bg-white rounded-lg shadow p-4">
-              <ul className="space-y-2">
+      <main className="admin-main">
+        <div className="container main-grid">
+          <aside className="sidebar">
+            <nav className="sidebar-nav">
+              <ul>
                 <li>
-                  <a href="#" className="block px-4 py-2 rounded hover:bg-gray-100">
-                    Products
+                  <a href="#" className="active">
+                    <FiPackage/> 
+                    <span>Products</span>
                   </a>
                 </li>
                 <li>
-                  <a href="/admin/orders" className="block px-4 py-2 rounded hover:bg-gray-100">
-                    Orders
+                  <a href="/admin/orders">
+                    <FiShoppingCart />
+                    <span>Orders</span>
                   </a>
                 </li>
                 <li>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 rounded hover:bg-gray-100"
-                  >
-                    Logout
+                 <button onClick={handleLogout}>
+                  <FiLogOut />
+                    <span>Logout</span>
                   </button>
                 </li>
               </ul>
             </nav>
           </aside>
 
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6">
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Add Product
-                </button>
-
-                <ProductTable
-                  products={products}
-                  onEdit={(product) => {
-                    setSelectedProduct(product);
-                    setShowEditModal(true);
-                  }}
-                  onRemove={handleRemoveProduct}
-                  onManageSizes={(product) => {
-                    setSelectedProduct(product);
-                    setShowSizeModal(true);
-                  }}
-                />
-              </div>
-            </div>
+          {/* 5. ส่วน Main Content คลีนขึ้นมาก! */}
+         <div className="main-content">
+            <ProductTable
+              products={products}
+              onAdd={() => setShowAddModal(true)}
+              onEdit={handleEditClick}
+              onRemove={handleRemoveProduct}
+              onManageSizes={handleSizeClick}
+            />
           </div>
+
         </div>
       </main>
 
+      {/* Modals (เหมือนเดิมทุกประการ) */}
       <ProductModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSave={refetch}
+       onSave={refetch}
         mode="add"
       />
-
       <ProductModal
         isOpen={showEditModal}
         onClose={() => {
@@ -122,7 +142,6 @@ export default function AdminDashboard() {
         onSave={refetch}
         mode="edit"
       />
-
       <SizeModal
         isOpen={showSizeModal}
         onClose={() => {
