@@ -12,7 +12,8 @@ import AuthModal from './features/auth/AuthModal.jsx';
 import CartModal from './features/cart/CartModal.jsx';
 
 // Import Pages
-import ShopPage from './pages/ShopPage';
+import HomePage from './pages/HomePage.jsx';
+import ShopPage from './pages/ShopPage';  
 import ProductDetailPage from './pages/ProductDetailPage';
 import MyAccountPage from './pages/MyAccountPage'; 
 import AboutPage from './pages/About.jsx';
@@ -47,7 +48,7 @@ function AppContent() {
       />
 
       <Routes>
-        <Route path="/" element={<ShopPage />} />
+        <Route path="/HomePage" element={<HomePage />} />
         <Route path="/shop-default" element={<ShopPage />} />
         <Route path="/product-detail" element={<ProductDetailPage />} />
 

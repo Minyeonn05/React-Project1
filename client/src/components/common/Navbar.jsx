@@ -108,7 +108,7 @@ const Navbar = ({ onLoginClick, onCartClick }) => {
           <nav className="box-navigation text-center col-xl-6 tf-md-hidden">
             <ul className="box-nav-ul d-flex align-items-center justify-content-center gap-30">
               <li className="menu-item">
-                <Link to="/" className="item-link">Home</Link>
+                <Link to="/HomePage" className="item-link">Home</Link>
               </li>
               <li className="menu-item">
                 <Link to="/shop-default" className="item-link">Shop</Link>

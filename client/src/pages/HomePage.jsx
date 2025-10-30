@@ -3,9 +3,9 @@ import React, { useMemo, useState } from 'react';
 function HomePage() {
   const slides = useMemo(
     () => [
-      '/images/slider/fashion-slideshow-01.jpg',
-      '/images/slider/fashion-slideshow-02.jpg',
-      '/images/slider/fashion-slideshow-03.jpg',
+      '../images/slider/fashion-slideshow-01.jpg',
+      '../images/slider/fashion-slideshow-02.jpg',
+      '../images/slider/fashion-slideshow-03.jpg',
     ],
     []
   );
