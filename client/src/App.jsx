@@ -55,8 +55,8 @@ function AppContent() {
         <Route path="/AboutPage" element={<AboutPage />} />
 
         {/* (เพิ่ม Route อื่นๆ ที่นี่ เช่น /admin ถ้ามี) */}
-        {/* <Route path="/admin" element={<AdminPage />} /> */}
-
+        <Route path="/AdminDashboard" element={<AdminDashboard />} /> 
+        
       </Routes>
 
       {/* (Footer ถูกลบไปแล้ว) */}

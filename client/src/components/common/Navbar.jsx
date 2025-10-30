@@ -54,14 +54,28 @@ const Navbar = ({ onLoginClick, onCartClick }) => {
 
   // แทนที่ checkloged()
   const handleAccountClick = () => {
-    if (user === 'admin@mail.org') {
-      navigate('/AdminDashboard'); // (คุณต้องสร้างหน้านี้ใน Routes)
-    } else if (user) {
-      navigate('/my-account'); // (คุณต้องสร้างหน้านี้ใน Routes)
-    } else {
-      onLoginClick(); // เปิด Modal
+    // 1. เช็คก่อนว่าเป็น admin หรือไม่
+    if (user === 'admin@mail.org') { 
+      navigate('/AdminDashboard');
+    } 
+    // 2. ถ้าไม่ใช่ admin แต่มีค่า user (เช่น 'user')
+    else if (user) { 
+      navigate('/my-account');
+    } 
+    // 3. ถ้าไม่มีค่า user เลย (เป็น null)
+    else { 
+      onLoginClick(); // ค่อยเปิด Modal
     }
   };
+  
+    //   if (user === 'admin@mail.org') {
+  //     navigate('/AdminDashboard'); // (คุณต้องสร้างหน้านี้ใน Routes)
+  //   } else if (user) {
+  //     navigate('/my-account'); // (คุณต้องสร้างหน้านี้ใน Routes)
+  //   } else {
+  //     onLoginClick(); // เปิด Modal
+  //   }
+  // };
 
   const headerStyle = {
     position: 'fixed',

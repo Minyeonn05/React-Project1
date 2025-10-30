@@ -1,208 +1,197 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import 'C:/react-app/React-Project1/client/src/assets/css/AdminDashboard.css';
 
-export default function ProductModal({ isOpen, onClose, product, onSave, mode = 'add' }) {
-  const [formData, setFormData] = useState({
-    id: '',
+// รับ props 4 ตัว
+export default function ProductModal({ isOpen, onClose, onSave, product, mode }) {
+  
+  // 2. สร้าง State สำหรับเก็บข้อมูลในฟอร์มทั้งหมด
+  const initialFormState = {
     name: '',
     price: '',
-    detail: '',
-    type: '',
-    size: '',
-    onShop: false,
-  });
-  const [imageFiles, setImageFiles] = useState([null, null, null, null, null]);
+    category: '',
+    description: '',
+    images: '', // เราจะใช้ Textarea ให้ใส่ URL ทีละบรรทัด
+  };
+  const [formData, setFormData] = useState(initialFormState);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // --- 3. 🌟 นี่คือส่วนที่สำคัญที่สุด (การเติมข้อมูล) ---
   useEffect(() => {
-    if (product && mode === 'edit') {
-      setFormData({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        detail: product.detail,
-        type: product.type,
-        size: '',
-        onShop: false,
-      });
+    // เมื่อ Modal เปิดขึ้นมา
+    if (isOpen) {
+      if (mode === 'edit' && product) {
+        // ถ้าเป็นโหมด 'edit' และมี 'product' ส่งมา
+        // ให้เติมข้อมูลจาก 'product' ลงในฟอร์ม
+        setFormData({
+          name: product.name || '',
+          price: product.price || '',
+          category: product.category || '',
+          description: product.description || '',
+          // แปลง Array (product.img) กลับเป็น String (ทีละบรรทัด)
+          images: product.img ? product.img.join('\n') : '',
+        });
+      } else {
+        // ถ้าเป็นโหมด 'add' ให้เคลียร์ฟอร์ม
+        setFormData(initialFormState);
+      }
+    }
+  }, [isOpen, mode, product]); // ทำงานใหม่ทุกครั้งที่ค่าเหล่านี้เปลี่ยน
+
+  // 4. Function เมื่อมีการพิมพ์ในฟอร์ม
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // 5. Function เมื่อกดปุ่ม Save (จัดการทั้ง Add และ Edit)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // 6. เตรียมข้อมูลที่จะส่ง (Payload)
+    // แปลง String จาก Textarea กลับเป็น Array
+    const imageArray = formData.images.split('\n').filter(Boolean); // filter(Boolean) ลบบรรทัดว่าง
+    
+    const payload = {
+      ...formData,
+      img: imageArray, // ใช้ 'img' key ให้ตรงกับ ProductCard
+      price: parseFloat(formData.price) || 0,
+    };
+    delete payload.images; // ลบ key 'images' ที่เราใช้ชั่วคราวทิ้ง
+
+    // 7. เลือก URL และ Method ตาม 'mode'
+    let url = 'http://localhost:5000/api/products';
+    let method = 'POST'; // Default คือ 'add'
+
+    if (mode === 'edit') {
+      // (ผมเดา API path จากโค้ด remove ของคุณนะครับ)
+      url = 'http://localhost:5000/api/products/update'; 
+      payload.id = product.id; // ‼️ ต้องส่ง id ของสินค้าที่จะแก้ไปด้วย
     } else {
-      setFormData({
-        id: '',
-        name: '',
-        price: '',
-        detail: '',
-        type: '',
-        size: '',
-        onShop: false,
-      });
-      setImageFiles([null, null, null, null, null]);
+      url = 'http://localhost:5000/api/products/add';
     }
-  }, [product, mode, isOpen]);
-
-  const handleSubmit = async () => {
-    if (!formData.id) {
-      alert('Please fill in the ID field.');
-      return;
-    }
-
-    if (mode === 'add' && !formData.size) {
-      alert('Please fill in the size field.');
-      return;
-    }
-
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach(key => {
-      formDataToSend.append(key, formData[key]);
-    });
-
-    imageFiles.forEach(file => {
-      if (file) formDataToSend.append('img', file);
-    });
 
     try {
-      const url = mode === 'add' 
-        ? 'http://localhost:5000/api/products/add'
-        : 'http://localhost:5000/api/products/edit';
-      
       const response = await fetch(url, {
-        method: 'POST',
-        body: formDataToSend,
+        method: method, // (ในโค้ดของคุณอาจจะเป็น 'POST' ทั้งคู่)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error(`Failed to ${mode} product`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save product');
+      }
       
-      alert(`Product ${mode === 'add' ? 'added' : 'edited'} successfully!`);
-      onSave();
-      onClose();
+      alert(`Product ${mode === 'edit' ? 'updated' : 'added'} successfully!`);
+      onSave(); // เรียก refetch()
+      onClose(); // ปิด Modal
+      
     } catch (error) {
-      console.error(error);
-      alert(`Error ${mode === 'add' ? 'adding' : 'editing'} product`);
+      console.error('Error saving product:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+
+  // 8. ถ้า isOpen เป็น false ไม่ต้อง render อะไรเลย
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">
-              {mode === 'add' ? 'Add Product' : 'Edit Product'}
-            </h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              ✕
-            </button>
-          </div>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <header className="modal-header">
+          <h2>{mode === 'edit' ? 'Edit Product' : 'Add New Product'}</h2>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Product ID</label>
+        </header>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            
+            <div className="form-group">
+              <label htmlFor="name">Product Name</label>
               <input
+                id="name"
+                name="name"
                 type="text"
-                className="w-full border rounded px-3 py-2"
-                value={formData.id}
-                onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                readOnly={mode === 'edit'}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Product Name</label>
-              <input
-                type="text"
-                className="w-full border rounded px-3 py-2"
+                className="form-input"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={handleChange}
+                required
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Images (up to 5)</label>
-              {[0, 1, 2, 3, 4].map(index => (
-                <input
-                  key={index}
-                  type="file"
-                  className="w-full border rounded px-3 py-1 mb-2"
-                  onChange={(e) => {
-                    const newFiles = [...imageFiles];
-                    newFiles[index] = e.target.files[0];
-                    setImageFiles(newFiles);
-                  }}
-                />
-              ))}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Price</label>
+            
+            <div className="form-group">
+              <label htmlFor="price">Price</label>
               <input
+                id="price"
+                name="price"
                 type="number"
-                className="w-full border rounded px-3 py-2"
+                step="0.01"
+                className="form-input"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                onChange={handleChange}
+                required
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Details</label>
-              <textarea
-                className="w-full border rounded px-3 py-2"
-                rows="3"
-                value={formData.detail}
-                onChange={(e) => setFormData({ ...formData, detail: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Type</label>
+            
+            <div className="form-group">
+              <label htmlFor="category">Category</label>
               <input
+                id="category"
+                name="category"
                 type="text"
-                className="w-full border rounded px-3 py-2"
-                value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="form-input"
+                value={formData.category}
+                onChange={handleChange}
               />
             </div>
 
-            {mode === 'add' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Size</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded px-3 py-2"
-                    placeholder="e.g., S, M, L"
-                    value={formData.size}
-                    onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                  />
-                </div>
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                className="form-textarea"
+                value={formData.description}
+                onChange={handleChange}
+              />
+            </div>
 
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="onShop"
-                    className="mr-2"
-                    checked={formData.onShop}
-                    onChange={(e) => setFormData({ ...formData, onShop: e.target.checked })}
-                  />
-                  <label htmlFor="onShop" className="text-sm font-medium">On Shop</label>
-                </div>
-              </>
-            )}
+            <div className="form-group">
+              <label htmlFor="images">Image URLs (หนึ่ง URL ต่อหนึ่งบรรทัด)</label>
+              <textarea
+                id="images"
+                name="images"
+                className="form-textarea"
+                placeholder="/uploads/image1.jpg&#10;/uploads/image2.jpg"
+                value={formData.images}
+                onChange={handleChange}
+              />
+            </div>
+
           </div>
-
-          <div className="flex justify-end gap-2 mt-6">
+          
+          <footer className="modal-footer">
             <button
+              type="button"
+              className="btn-secondary"
               onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-100"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              type="submit"
+              className="btn btn-primary" // ใช้คลาสปุ่มหลัก
+              disabled={isLoading}
             >
-              {mode === 'add' ? 'Add' : 'Save Changes'}
+              {isLoading ? 'Saving...' : (mode === 'edit' ? 'Update Product' : 'Add Product')}
             </button>
-          </div>
-        </div>
+          </footer>
+        </form>
       </div>
     </div>
   );
