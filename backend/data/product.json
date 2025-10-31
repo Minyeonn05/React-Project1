@@ -535,5 +535,41 @@
         "onShop": true
       }
     ]
+  },
+  {
+    "id": "1761851845701",
+    "name": "เจฟ",
+    "img": [
+      "/uploads/1761851845701-1761895963164-Screenshot-2025-10-27-151431.png"
+    ],
+    "price": "1000",
+    "detail": "หลุด Rate",
+    "type": "Dark",
+    "sizes": [
+      {
+        "size": "M",
+        "onShop": false
+      },
+      {
+        "size": "XL",
+        "onShop": true
+      }
+    ]
+  },
+  {
+    "id": "1761896611576",
+    "name": "แม่พี่หนาม",
+    "img": [
+      "/uploads/1761896611576-Screenshot-2025-10-01-013132.png"
+    ],
+    "price": "50",
+    "detail": "GG",
+    "type": "HAREM",
+    "sizes": [
+      {
+        "size": "M",
+        "onShop": true
+      }
+    ]
   }
 ]

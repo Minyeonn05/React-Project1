@@ -1,11 +1,28 @@
 [
   {
     "email": "admin@mail.org",
-    "carts": []
+    "carts": [
+      {
+        "item": "เจฟ",
+        "size": "XL",
+        "amount": 1
+      },
+      {
+        "item": "แม่พี่หนาม",
+        "size": "M",
+        "amount": 1
+      }
+    ]
   },
   {
     "email": "krittayot.10516@gmail.com",
-    "carts": []
+    "carts": [
+      {
+        "item": "Oversized timeless_Truffle",
+        "size": "XXL",
+        "amount": 1
+      }
+    ]
   },
   {
     "email": "GG@gmail.com",
