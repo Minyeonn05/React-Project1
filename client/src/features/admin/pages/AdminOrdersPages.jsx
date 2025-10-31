@@ -1,9 +1,14 @@
+// client/src/features/admin/pages/AdminOrdersPages.jsx
+
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { logout } from '../../auth/authSlice';
-import { FiPackage, FiUser, FiCalendar, FiDollarSign } from 'react-icons/fi';
+// ‼️ (สันนิษฐานว่า logout อยู่ที่นี่ ถ้าไม่ ให้แก้ Path)
+import { logout } from '../../auth/authSlice'; 
+import { FiPackage, FiShoppingCart, FiLogOut, FiTrash2 } from 'react-icons/fi'; // (เพิ่ม FiTrash2)
 
 import '../../../assets/css/AdminDashboard.css';
+// (คุณอาจจะต้อง import apiClient ถ้าคุณใช้แทน fetch)
+// import apiClient from '../../../api/apiClient';
 
 export default function AdminOrdersPages() {
   const dispatch = useDispatch();
@@ -16,14 +21,49 @@ export default function AdminOrdersPages() {
   }, []);
 
   const fetchOrders = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/orders');
+      // ‼️ --- 1. (แก้ไข URL) --- ‼️
+      // (ถ้าคุณใช้ apiClient: const response = await apiClient.get('/users/getAllOrders');)
+      const response = await fetch('http://localhost:5000/api/users/getAllOrders');
+      
+      if (!response.ok) {
+         // (จัดการ Error กรณี API ล่ม)
+         const errorText = await response.text();
+         throw new Error(errorText || 'Failed to fetch orders');
+      }
+      
       const data = await response.json();
       setOrders(data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
       setLoading(false);
+    }
+  };
+
+  // ‼️ --- 2. (เพิ่มฟังก์ชันลบ) --- ‼️
+  const handleRemoveOrder = async (email, index) => {
+    if (window.confirm(`Remove order (Index: ${index}) for user ${email}?`)) {
+      try {
+        // (ถ้าคุณใช้ apiClient: await apiClient.post('/users/removeAdminOrder', { email, orderIndex: index });)
+        const response = await fetch('http://localhost:5000/api/users/removeAdminOrder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, orderIndex: index })
+        });
+        
+        if (!response.ok) {
+           const errorData = await response.json();
+           throw new Error(errorData.status || 'Failed to remove');
+        }
+        
+        alert('Order removed successfully');
+        fetchOrders(); // ดึงข้อมูลใหม่
+      } catch (error) {
+        console.error('Error removing order:', error);
+        alert(`Error: ${error.message}`);
+      }
     }
   };
 
@@ -52,9 +92,10 @@ export default function AdminOrdersPages() {
           {/* Sidebar */}
           <aside className="lg:col-span-1">
             <nav className="bg-white rounded-lg shadow p-4">
-              <ul className="space-y-2">
+              <ul className="sidebar-nav">
                 <li>
-                  <a href="/admin" className="block px-4 py-2 rounded hover:bg-gray-100">
+                  {/* (แก้ไข Link ให้ถูก) */}
+                  <a href="/AdminDashboard" className="block px-4 py-2 rounded hover:bg-gray-100">
                     Products
                   </a>
                 </li>
@@ -75,7 +116,7 @@ export default function AdminOrdersPages() {
             </nav>
           </aside>
 
-          {/* Orders Content */}
+          {/* ‼️ --- 3. (แก้ไขตารางทั้งหมด) --- ‼️ */}
           <div className="lg:col-span-3">
             <div className="content-card">
               <div className="content-card-header">
@@ -89,50 +130,55 @@ export default function AdminOrdersPages() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
+                  {/* (ใช้ Class จาก AdminDashboard.jsx เพื่อให้หน้าตาเหมือนกัน) */}
                   <table className="product-table">
                     <thead>
                       <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Products</th>
-                        <th className="cell-right">Total</th>
-                        <th>Status</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Items</th>
+                        <th>Size</th>
+                        <th>Amount</th>
+                        <th className="actions cell-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((order) => (
-                        <tr key={order._id}>
-                          <td>#{order._id.slice(-6)}</td>
+                      {/* (เปลี่ยน Logic การ map ข้อมูล) */}
+                      {orders.map((order, index) => (
+                        <tr key={`${order.userEmail}-${order.orderIndex}`}>
+                          <td>{order.name || 'N/A'}</td>
+                          <td>{order.userEmail}</td>
                           <td>
-                            <div className="flex items-center gap-2">
-                              <FiUser />
-                              {order.customerName || 'Guest'}
-                            </div>
+                            {/* (แสดงที่อยู่แรก ถ้ามี) */}
+                            {order.address && order.address.length > 0 
+                                ? order.address[0].address 
+                                : 'No address'
+                            }
                           </td>
                           <td>
-                            <div className="flex items-center gap-2">
-                              <FiCalendar />
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </div>
+                            <ul>
+                              {order.items.map((item, i) => <li key={i}>{item.item}</li>)}
+                            </ul>
                           </td>
                           <td>
-                            {order.items?.length || 0} item(s)
+                             <ul>
+                              {order.items.map((item, i) => <li key={i}>{item.size}</li>)}
+                            </ul>
                           </td>
-                          <td className="cell-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <FiDollarSign />
-                              {order.totalAmount?.toFixed(2) || '0.00'}
-                            </div>
+                           <td>
+                             <ul>
+                              {order.items.map((item, i) => <li key={i}>{item.amount}</li>)}
+                            </ul>
                           </td>
-                          <td>
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${
-                              order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {order.status || 'pending'}
-                            </span>
+                          <td className="actions cell-right">
+                            <button
+                                className="btn-icon btn-icon-delete"
+                                title="Remove Order"
+                                onClick={() => handleRemoveOrder(order.userEmail, order.orderIndex)}
+                            >
+                                <FiTrash2 />
+                            </button>
                           </td>
                         </tr>
                       ))}
