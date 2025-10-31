@@ -54,7 +54,7 @@ export default function ProductTable({ products, onAdd, onEdit, onRemove, onMana
               <th>Name</th>
               <th className="cell-right">Price</th>
               <th>Category</th>
-              <th className="actions cell-right">Actions</th> {/* แก้ไข: เพิ่ม cell-right ที่นี่ด้วยครับ */}
+              <th className="cell-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -79,7 +79,8 @@ export default function ProductTable({ products, onAdd, onEdit, onRemove, onMana
                     <td>{product.name}</td>
                     <td className="cell-right">${product.price}</td> {/* จัดชิดขวา */}
                     <td>{product.category}</td>
-                    <td className="actions">
+                    <td>
+                      <div className="actions">
                       <button
                         className="btn-icon btn-icon-edit"
                         title="Edit"
@@ -101,6 +102,7 @@ export default function ProductTable({ products, onAdd, onEdit, onRemove, onMana
                       >
                         <FiTrash2 />
                       </button>
+                      </div>
                     </td>
                   </tr>
                 );
