@@ -239,8 +239,8 @@ body {
 .product-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
 }
+
 
 .product-table th,
 .product-table td {
@@ -248,6 +248,11 @@ body {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+.cell-right {
+  text-align: right;
 }
 
 .product-table th {
@@ -262,11 +267,52 @@ body {
   background-color: #f9fafb;
 }
 
-.product-table td.actions {
-  text-align: right;
+.actions {
   display: flex;
+  gap: 0.5rem;
   justify-content: flex-end;
-  gap: 0.25rem;
+  align-items: center;
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.btn-icon:hover {
+  background-color: #f3f4f6;
+}
+
+.btn-icon-edit {
+  color: #3b82f6;
+}
+
+.btn-icon-edit:hover {
+  background-color: #dbeafe;
+}
+
+.btn-icon-size {
+  color: #8b5cf6;
+}
+
+.btn-icon-size:hover {
+  background-color: #ede9fe;
+}
+
+.btn-icon-delete {
+  color: #ef4444;
+}
+
+.btn-icon-delete:hover {
+  background-color: #fee2e2;
 }
 
 .product-image {
