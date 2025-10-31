@@ -538,33 +538,37 @@
   },
   {
     "id": "1761851845701",
-    "name": "sdasd",
+    "name": "เจฟ",
     "img": [
-      "\\temp_uploads\\img-1.png"
+      "/uploads/1761851845701-1761895963164-Screenshot-2025-10-27-151431.png"
     ],
-    "price": 222,
-    "detail": "dsadas",
-    "type": "dasd",
+    "price": "1000",
+    "detail": "หลุด Rate",
+    "type": "Dark",
     "sizes": [
       {
         "size": "M",
         "onShop": false
+      },
+      {
+        "size": "XL",
+        "onShop": true
       }
     ]
   },
   {
-    "id": "1761853190136",
-    "name": "dasdas",
+    "id": "1761896611576",
+    "name": "แม่พี่หนาม",
     "img": [
-      "/temp_uploads/1761853190136-Screenshot-2025-10-31-023358.png"
+      "/uploads/1761896611576-Screenshot-2025-10-01-013132.png"
     ],
-    "price": "333",
-    "detail": "Error",
-    "type": "Dang",
+    "price": "50",
+    "detail": "GG",
+    "type": "HAREM",
     "sizes": [
       {
         "size": "M",
-        "onShop": false
+        "onShop": true
       }
     ]
   }

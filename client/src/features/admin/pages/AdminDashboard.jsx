@@ -1,4 +1,11 @@
-import { useState } from 'react'; 
+// client/src/features/admin/pages/AdminDashboard.jsx
+
+import { useState } from 'react';
+// ‼️ --- START: เพิ่ม 2 บรรทัดนี้ --- ‼️
+import { useDispatch } from 'react-redux';
+import { fetchProducts } from '../../product/productSlice';
+// ‼️ --- END: เพิ่ม --- ‼️
+
 // --- START: PATH FIXES ---
 import { useProducts } from "../hooks/useProducts";
 import ProductModal from "../component/ProductModal";
@@ -6,7 +13,6 @@ import SizeModal from "../component/SizeModal";
 import ProductTable from "../component/ProductTable";
 // 2. Import CSS (Corrected relative path)
 import "../../../assets/css/AdminDashboard.css";
-
 // --- END: PATH FIXES ---
 
 import { 
@@ -16,16 +22,28 @@ import {
 } from 'react-icons/fi';
 
 export default function AdminDashboard() {
-  const { products, loading, refetch } = useProducts();
+  const { products, loading, refetch } = useProducts(); // (refetch นี้สำหรับอัปเดตตาราง Admin)
+  
+  // ‼️ --- START: เพิ่มบรรทัดนี้ --- ‼️
+  const dispatch = useDispatch(); // สั่งให้ Redux ทำงาน
+  // ‼️ --- END: เพิ่ม --- ‼️
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   
-  // searchTerm และ filteredProducts ถูกย้ายไปอยู่ใน ProductTable.jsx แล้ว!
+  // ‼️ --- START: สร้างฟังก์ชัน onSave ใหม่ --- ‼️
+  // ฟังก์ชันนี้จะสั่งอัปเดตข้อมูล 2 ส่วน:
+  // 1. อัปเดตตาราง Admin (ผ่าน refetch)
+  // 2. อัปเดต Redux store (ผ่าน dispatch)
+  const handleSaveAndRefetch = () => {
+    refetch(); // 1. อัปเดตข้อมูลใน useProducts (สำหรับหน้านี้)
+    dispatch(fetchProducts()); // 2. (สำคัญ) สั่งให้ Redux store ดึงข้อมูลใหม่ (สำหรับทั้งเว็บ)
+  };
+  // ‼️ --- END: สร้างฟังก์ชัน --- ‼️
 
   const handleRemoveProduct = async (productId) => {
-    // ... (โค้ดเดิม)
     if (!confirm(`Remove product ${productId}?`)) return;
     try {
       const response = await fetch('http://localhost:5000/api/products/remove', {
@@ -35,7 +53,11 @@ export default function AdminDashboard() {
       });
       if (!response.ok) throw new Error('Failed to remove product');
       alert('Product removed successfully!');
-      refetch();
+      
+      // ‼️ --- START: แก้ไข --- ‼️
+      handleSaveAndRefetch(); // เรียกใช้ฟังก์ชันใหม่
+      // ‼️ --- END: แก้ไข --- ‼️
+
     } catch (error) {
       console.error(error);
       alert('Error removing product');
@@ -47,16 +69,14 @@ export default function AdminDashboard() {
       localStorage.removeItem('loggedInUser');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      localStorage.removeItem('persist:root'); // If using Redux persist
+      localStorage.removeItem('persist:root'); 
       localStorage.removeItem('token');
-      // --- END: ADDED LOGOUT LOGIC ---
 
       alert('You have been logged out.');
       window.location.href = '/';
     }
   };
 
-  // 4. สร้าง Helper function เพื่อส่งให้ ProductTable
   const handleEditClick = (product) => {
     setSelectedProduct(product);
     setShowEditModal(true);
@@ -66,7 +86,6 @@ export default function AdminDashboard() {
     setSelectedProduct(product);
     setShowSizeModal(true);
   };
-
 
   if (loading) {
     return (
@@ -111,7 +130,6 @@ export default function AdminDashboard() {
             </nav>
           </aside>
 
-          {/* 5. ส่วน Main Content คลีนขึ้นมาก! */}
          <div className="main-content">
             <ProductTable
               products={products}
@@ -125,11 +143,11 @@ export default function AdminDashboard() {
         </div>
       </main>
 
-      {/* Modals (เหมือนเดิมทุกประการ) */}
+      {/* ‼️ --- START: แก้ไข props ใน Modals --- ‼️ */}
       <ProductModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-       onSave={refetch}
+        onSave={handleSaveAndRefetch} // <--- แก้ไขตรงนี้
         mode="add"
       />
       <ProductModal
@@ -139,7 +157,7 @@ export default function AdminDashboard() {
           setSelectedProduct(null);
         }}
         product={selectedProduct}
-        onSave={refetch}
+        onSave={handleSaveAndRefetch} // <--- แก้ไขตรงนี้
         mode="edit"
       />
       <SizeModal
@@ -149,8 +167,9 @@ export default function AdminDashboard() {
           setSelectedProduct(null);
         }}
         product={selectedProduct}
-        onSave={refetch}
+        onSave={handleSaveAndRefetch} // <--- แก้ไขตรงนี้
       />
+      {/* ‼️ --- END: แก้ไข props --- ‼️ */}
     </div>
   );
 }

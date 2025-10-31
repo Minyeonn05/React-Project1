@@ -1,24 +1,20 @@
+// backend/services/productServices.js
+
 const fs = require('fs');
 const path = require('path');
-// (เราไม่ต้องใช้ fileURLToPath/dirname ใน CommonJS)
 
 const productFilePath = path.join(__dirname, "..", "data", "product.json");
 
-// ‼️ --- (จุดที่ 1: เปลี่ยนโฟลเดอร์ปลายทาง) --- ‼️
-// โฟลเดอร์ปลายทาง (เปลี่ยนเป็น 'uploads')
 const finalUploadDir = path.join(__dirname, '..', 'uploads'); 
 
-// ‼️ --- (จุดที่ 2: ตรวจสอบและสร้างโฟลเดอร์ 'uploads' ถ้ายังไม่มี) --- ‼️
 if (!fs.existsSync(finalUploadDir)) {
     fs.mkdirSync(finalUploadDir, { recursive: true });
     console.log(`Created directory: ${finalUploadDir}`);
 }
 
-// Helper function (แก้ไข)
 function deleteFinalFiles(filePaths) {
     if (filePaths && filePaths.length > 0) {
         filePaths.forEach(relativePath => {
-            // ‼️ --- (จุดที่ 3: เปลี่ยน Path check เป็น /uploads/) --- ‼️
             if (relativePath.startsWith('/uploads/')) {
                 const filename = path.basename(relativePath);
                 const fullPath = path.join(finalUploadDir, filename);
@@ -31,14 +27,12 @@ function deleteFinalFiles(filePaths) {
     }
 }
 
-// ‼️ --- START: ADDED getProducts FUNCTION --- ‼️
 function getProducts(req, res) {
     const filePath = path.join(__dirname, "..", "data", "product.json");
     let products = [];
     if (fs.existsSync(filePath)) {
         let dataProduct = fs.readFileSync(filePath, "utf-8");
         try {
-            // (ใช้ Logic กันไฟล์ว่าง/ไฟล์เสีย เหมือนฟังก์ชันอื่น)
             products = dataProduct ? JSON.parse(dataProduct) : [];
             if (!Array.isArray(products)) {
                  products = [];
@@ -47,23 +41,26 @@ function getProducts(req, res) {
             products = [];
         }
     }
-    
-    // ส่งข้อมูล JSON ของ products ทั้งหมดกลับไป
     res.status(200).json(products);
 }
-// ‼️ --- END: ADDED getProducts FUNCTION --- ‼️
 
 
-// --- ‼️ START: REWRITE addProduct for Multer ‼️ ---
-// 1. เปลี่ยนเป็น function ธรรมดา (ลบ 'export' ออก)
+// --- REWRITE addProduct for Multer (ฉบับแก้ไข) ---
 function addProduct(req, res) {
     const { name, price, description, category, onShop } = req.body;
     const uploadedFiles = req.files; 
     
-    let on_off = false; 
-    if (onShop === 'true' || onShop === true) {
-        on_off = true;
+    // ‼️ --- START: แก้ไข Logic --- ‼️
+    // 1. ตั้งค่าเริ่มต้นให้ "เปิดขาย" (true)
+    let on_off = true; 
+
+    // 2. (ProductModal ไม่ได้ส่ง onShop มา ดังนั้นค่านี้จะเป็น undefined)
+    // เราจะปิดการขาย (false) ก็ต่อเมื่อมีการส่ง 'false' มาอย่างชัดเจน
+    if (onShop === 'false' || onShop === false) { 
+        on_off = false; 
     }
+    // (ถ้า onShop เป็น 'true' หรือ undefined มันก็จะเป็น true ตามค่าเริ่มต้น)
+    // ‼️ --- END: แก้ไข Logic --- ‼️
 
     const filePath = path.join(__dirname, "..", "data", "product.json");
     let products = [];
@@ -73,15 +70,11 @@ function addProduct(req, res) {
     if (uploadedFiles && uploadedFiles.length > 0) {
         try {
             uploadedFiles.forEach(file => {
-                const oldPath = file.path; // นี่คือ path ชั่วคราวใน /temp_uploads
+                const oldPath = file.path; 
                 const newFilename = `${newId}-${file.originalname.replace(/\s+/g, '-')}`;
-                // (ตัวแปร finalUploadDir ถูกเปลี่ยนเป็น 'uploads' แล้ว)
                 const newPath = path.join(finalUploadDir, newFilename);
                 
-                // ย้ายไฟล์จาก /temp_uploads -> /uploads
                 fs.renameSync(oldPath, newPath); 
-                
-                // ‼️ --- (จุดที่ 4: เปลี่ยน Path ที่บันทึก) --- ‼️
                 imgPaths.push(`/uploads/${newFilename}`); 
             });
         } catch (error) {
@@ -98,9 +91,9 @@ function addProduct(req, res) {
         price,
         detail: description, 
         type: category,     
-        sizes: [{
+        sizes: [{ //
             size: "M", 
-            onShop: on_off 
+            onShop: on_off // ‼️ (ค่านี้จะกลายเป็น true)
         }]
     };
 
@@ -132,29 +125,24 @@ function addProduct(req, res) {
         return res.status(200).json({ status: 'AddProduct successfully', product });
     }
 }
-// --- ‼️ END: REWRITE addProduct for Multer ‼️ ---
 
 
-// --- ‼️ START: REWRITE editProduct for Multer ‼️ ---
-// 2. เปลี่ยนเป็น function ธรรมดา (ลบ 'export' ออก)
+// --- REWRITE editProduct for Multer (ฉบับแก้ไขจากรอบที่แล้ว) ---
 function editProduct(req, res) {
     const { id, name, price, description, category } = req.body;
     const uploadedFiles = req.files; 
     
-    // ‼️ (สำคัญ) แก้ Logic การรับ 'img' (รูปเก่า)
     let existingImages = [];
     if (req.body.img) {
         if (Array.isArray(req.body.img)) {
             existingImages = req.body.img;
         } else {
-            // (ป้องกันกรณี req.body.img เป็น string ว่าง)
             if (req.body.img) {
                 existingImages = [req.body.img];
             }
         }
     }
-    // ‼️ (จบการแก้ Logic 'img')
-
+    
     const filePath = path.join(__dirname, "..", "data", "product.json");
     let products = [];
     let newImgPaths = [...existingImages]; 
@@ -189,15 +177,15 @@ function editProduct(req, res) {
         if (uploadedFiles && uploadedFiles.length > 0) {
             try {
                 uploadedFiles.forEach(file => {
-                    const oldPath = file.path; // นี่คือ path ชั่วคราวใน /temp_uploads
-                    const newFilename = `${id}-${file.originalname.replace(/\s+/g, '-')}`; 
-                    // (ตัวแปร finalUploadDir ถูกเปลี่ยนเป็น 'uploads' แล้ว)
-                    const newPath = path.join(finalUploadDir, newFilename);
+                    const oldPath = file.path; 
+                    
+                    // (เพิ่ม timestamp เพื่อแก้ปัญหา Cache)
+                    const timestamp = Date.now();
+                    const newFilename = `${id}-${timestamp}-${file.originalname.replace(/\s+/g, '-')}`; 
 
-                    // ย้ายไฟล์จาก /temp_uploads -> /uploads
+                    const newPath = path.join(finalUploadDir, newFilename);
                     fs.renameSync(oldPath, newPath); 
                     
-                    // ‼️ --- (จุดที่ 5: เปลี่ยน Path ที่บันทึก) --- ‼️
                     const publicPath = `/uploads/${newFilename}`;
                     newImgPaths.push(publicPath); 
                     processedNewFiles.push(publicPath); 
@@ -232,10 +220,8 @@ function editProduct(req, res) {
         res.status(400).json({ status: 'EditProduct NotHaveFile error' });
     }
 }
-// --- ‼️ END: REWRITE editProduct for Multer ‼️ ---
 
-
-// 3. เปลี่ยนเป็น function ธรรมดา (ลบ 'export' ออก)
+// (ฟังก์ชัน removeProduct เหมือนเดิม)
 function removeProduct(req, res) {
     const { id } = req.body;
     const filePath = path.join(__dirname, "..", "data", "product.json");
@@ -264,7 +250,6 @@ function removeProduct(req, res) {
         } else {
             const removedProduct = products[findId];
             if (removedProduct && Array.isArray(removedProduct.img)) {
-                // (ฟังก์ชันนี้ถูกแก้ให้มองหา /uploads/ แล้ว)
                 deleteFinalFiles(removedProduct.img);
             }
             const removedItems = products.splice(findId, 1);
@@ -278,7 +263,7 @@ function removeProduct(req, res) {
     }
 }
 
-// 4. เปลี่ยนเป็น function ธรรมดา (ลบ 'export' ออก)
+// (ฟังก์ชัน sizeAdd เหมือนเดิม)
 function sizeAdd(req, res) {
     const { id, size, onShop } = req.body;
     let on_off;
@@ -317,7 +302,6 @@ function sizeAdd(req, res) {
             res.status(400).json({ status: 'AddSize NotHaveId error', id })
         } else {
             let sizeSame = -1;
-            // (กัน Error ถ้า .sizes ไม่มีอยู่)
             if (!products[findId].sizes) {
                 products[findId].sizes = [];
             }
@@ -345,7 +329,7 @@ function sizeAdd(req, res) {
     }
 }
 
-// 5. เปลี่ยนเป็น function ธรรมดา (ลบ 'export' ออก)
+// (ฟังก์ชัน sizeRemove เหมือนเดิม)
 function sizeRemove(req, res) {
     const { id, size } = req.body;
     const filePath = path.join(__dirname, "..", "data", "product.json");
@@ -372,7 +356,6 @@ function sizeRemove(req, res) {
             res.status(400).json({ status: 'RemoveSize NotHaveId error', id })
         } else {
             let sizeSame = -1;
-            // (กัน Error ถ้า .sizes ไม่มีอยู่)
             if (!products[findId].sizes) {
                  console.log('RemoveSize SizeNotFind error (no sizes array)', { id });
                 return res.status(400).json({ status: 'RemoveSize SizeNotFind error (no sizes array)', id, size })
@@ -399,9 +382,8 @@ function sizeRemove(req, res) {
     }
 }
 
-// 6. (สำคัญ) Export ทุกอย่างด้วย module.exports (CommonJS)
 module.exports = {
-    getProducts, // ‼️ (เพิ่ม 'getProducts' เข้าไปใน exports)
+    getProducts, 
     addProduct,
     editProduct,
     removeProduct,
